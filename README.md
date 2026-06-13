@@ -4,8 +4,8 @@
 
 ### Componente Práctico Experimental
 
-**Carrera:** Tecnologías de la Información
-**Semestre:** Cuarto Semestre
+**Carrera:** Tecnologías de la Información  
+**Semestre:** Cuarto Semestre  
 **Período Académico:** 2026 - 2026
 
 ---

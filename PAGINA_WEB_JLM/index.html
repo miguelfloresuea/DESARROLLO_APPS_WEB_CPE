@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="JLM Connect 360 - Internet en Morona Santiago">
+    <meta name="keywords" content="internet, redes, Macas, conectividad">
+    <title>JLM Connect 360</title>
+
+    <style>
+        /* Estilos generales */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f4f8;
+            color: #333333;
+        }
+
+        /* Header */
+        header {
+            background-color: #3b69ae;
+            color: white;
+            text-align: center;
+            padding: 30px;
+        }
+
+        header img {
+            width: 150px;
+            height: 150px;
+            object-fit: contain;
+            margin-bottom: 10px;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2em;
+        }
+
+        header p {
+            margin: 5px 0 0 0;
+            font-style: italic;
+        }
+
+        /* Navegación */
+        nav {
+            background-color: #1c4978;
+            padding: 10px;
+            text-align: center;
+        }
+
+        nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        nav ul li {
+            display: inline;
+            margin: 0 15px;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        nav ul li a:hover {
+            text-decoration: underline;
+        }
+
+        /* Layout principal: contenido + aside */
+        .contenedor {
+            display: flex;
+            gap: 20px;
+            max-width: 1100px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        main {
+            flex: 3;
+        }
+
+        aside {
+            flex: 1;
+        }
+
+        /* Secciones */
+        section, article {
+            background-color: white;
+            border-left: 5px solid #42608e;
+            margin-bottom: 20px;
+            padding: 20px;
+            border-radius: 5px;
+        }
+
+        section h2, article h2 {
+            color: #0d47a1;
+            margin-top: 0;
+        }
+
+        /* Imagen */
+        section img {
+            width: 100%;
+            max-width: 500px;
+            height: auto;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+
+        /* Lista de servicios */
+        section ul {
+            line-height: 2;
+        }
+
+        section ul li {
+            color: #1565c0;
+            font-weight: bold;
+        }
+
+        /* Contacto - enlaces */
+        #contacto a {
+            color: #0d47a1;
+        }
+
+        /* Video */
+        article iframe {
+            width: 100%;
+            max-width: 560px;
+            height: 315px;
+            margin-top: 10px;
+        }
+
+        /* Aside */
+        aside {
+            background-color: white;
+            border-left: 5px solid #00897b;
+            padding: 20px;
+            border-radius: 5px;
+            height: fit-content;
+        }
+
+        aside h3 {
+            color: #00897b;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 5px;
+        }
+
+        aside p {
+            font-size: 0.95em;
+            color: #555;
+        }
+
+        /* Footer */
+        footer {
+            background-color: #0d1b2a;
+            color: #ccc;
+            text-align: center;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        footer p {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Encabezado principal -->
+    <header>
+        <img src="LOGO.PNG" alt="Logo JLM Connect 360">
+        <h1>JLM Connect 360</h1>
+        <p>Internet sin límites, Ecuador conectado</p>
+    </header>
+
+    <!-- Menú de navegación -->
+    <nav>
+        <ul>
+            <li><a href="#inicio">Inicio</a></li>
+            <li><a href="#quienes-somos">Quiénes Somos</a></li>
+            <li><a href="#servicios">Servicios</a></li>
+            <li><a href="#contacto">Contacto</a></li>
+        </ul>
+    </nav>
+
+    <!-- Contenedor principal: main + aside -->
+    <div class="contenedor">
+
+        <main>
+
+            <!-- Sección Inicio -->
+            <section id="inicio">
+                <h2>Bienvenido</h2>
+                <p>
+                    Somos una empresa ecuatoriana que brinda internet de alta velocidad
+                    a hogares y pequeñas empresas en Macas, Morona Santiago. Nuestra meta
+                    es mantenerte siempre conectado con un servicio confiable y accesible.
+                </p>
+            </section>
+
+            <!-- Sección Quiénes Somos -->
+            <section id="quienes-somos">
+                <h2>Quiénes Somos</h2>
+
+                <img
+                    src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=600&q=80"
+                    alt="Infraestructura de red JLM Connect 360">
+
+                <p>
+                    JLM Connect 360 es un emprendimiento tecnológico ecuatoriano dedicado a brindar
+                    soluciones de conectividad integral para hogares y pequeñas empresas en Morona Santiago.
+                    Nuestra misión es cerrar la brecha digital ofreciendo planes de internet de alta velocidad,
+                    venta de equipos de red certificados y soporte técnico especializado. Nos distinguimos por
+                    nuestra atención personalizada, tiempos de respuesta rápidos y tarifas justas adaptadas a
+                    la realidad local. Creemos que el acceso a internet de calidad es un derecho fundamental
+                    para el desarrollo educativo y económico de nuestra comunidad amazónica.
+                </p>
+            </section>
+
+            <!-- Sección Servicios -->
+            <section id="servicios">
+                <h2>Servicios</h2>
+                <ul>
+                    <li>Planes de Internet (Básico, Estándar, Premium)</li>
+                    <li>Venta de Routers y Repetidores</li>
+                    <li>Instalación de Cableado Estructurado</li>
+                    <li>Soporte Técnico y Tickets de Ayuda</li>
+                    <li>Consultoría en Redes para PyMEs</li>
+                </ul>
+            </section>
+
+            <!-- Article: Video -->
+            <article>
+                <h2>Video Informativo</h2>
+                <p>Conoce más sobre conectividad en la Amazonía ecuatoriana:</p>
+                <iframe
+                    src="https://www.youtube.com/embed/xZklereHeW8?si=uaXGbLpoQ0nBG1_p"
+                    title="Que es JLM Connect 360: Internet en la Amazonía"
+                    allowfullscreen>
+                </iframe>
+            </article>
+
+            <!-- Sección Contacto -->
+            <section id="contacto">
+                <h2>Contacto</h2>
+                <p>Correo: <a href="mailto:jlmconnect360@gmail.com">jlmconnect360@gmail.com</a></p>
+                <p>Teléfono: <a href="tel:+593900000000">+593 900000000</a></p>
+                <p>Dirección: Macas, Morona Santiago, Ecuador</p>
+                <p>
+                    Redes sociales:
+                    <a href="https://www.facebook.com" target="_blank">Facebook</a> |
+                    <a href="https://www.instagram.com" target="_blank">Instagram</a> |
+                    <a href="https://wa.me/593900000000" target="_blank">WhatsApp</a>
+                </p>
+            </section>
+
+        </main>
+
+        <!-- Información complementaria -->
+        <aside>
+            <h3>Promoción</h3>
+            <p>20% de descuento en instalación este mes. ¡No te pierdas esta oferta!</p>
+
+            <h3>Horario de Atención</h3>
+            <p>Lunes a Viernes<br>08:00 - 18:00</p>
+
+            <h3>Zona de Cobertura</h3>
+            <p>Centro de Macas y alrededores</p>
+        </aside>
+
+    </div>
+
+    <!-- Pie de página -->
+    <footer>
+        <p>Estudiante: Jessica Paola Flores</p>
+        <p>Asignatura: Desarrollo de Aplicaciones Web</p>
+        <p>Año: 2026</p>
+    </footer>
+
+</body>
+</html>

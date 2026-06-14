@@ -1,289 +1,177 @@
+```html
 <!DOCTYPE html>
 <html lang="es">
 
 <head>
+    <!-- Configuración básica del documento -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="JLM Connect 360 - Internet sin límites, Ecuador conectado">
-    <meta name="keywords" content="internet, redes, Macas, conectividad">
+    <meta name="description" content="JLM Connect 360 - Internet en Morona Santiago">
+
     <title>JLM Connect 360</title>
 
     <style>
-        /* Estilos generales */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
-            padding: 0;
-            background-color: #f0f4f8;
-            color: #333333;
         }
 
-        /* Header */
-        header {
+        header,
+        footer {
             background-color: #3b69ae;
             color: white;
             text-align: center;
-            padding: 30px;
+            padding: 15px;
         }
 
-        header img {
-            width: 150px;
-            height: 150px;
-            object-fit: contain;
-            margin-bottom: 10px;
-        }
-
-        header h1 {
-            margin: 0;
-            font-size: 2em;
-        }
-
-        header p {
-            margin: 5px 0 0 0;
-            font-style: italic;
-        }
-
-        /* Navegación */
         nav {
             background-color: #1c4978;
-            padding: 10px;
             text-align: center;
+            padding: 10px;
         }
 
-        nav ul {
-            list-style: none;
-            margin: 0;
-            padding: 0;
-        }
-
-        nav ul li {
-            display: inline;
-            margin: 0 15px;
-        }
-
-        nav ul li a {
+        nav a {
             color: white;
             text-decoration: none;
-            font-weight: bold;
+            margin: 0 10px;
         }
 
-        nav ul li a:hover {
-            text-decoration: underline;
+        main,
+        aside,
+        section,
+        article {
+            padding: 15px;
         }
 
-        /* Layout principal: contenido + aside */
-        .contenedor {
-            display: flex;
-            gap: 20px;
-            max-width: 1100px;
-            margin: 20px auto;
-            padding: 0 20px;
-        }
-
-        main {
-            flex: 3;
-        }
-
-        aside {
-            flex: 1;
-        }
-
-        /* Secciones */
-        section, article {
-            background-color: white;
-            border-left: 5px solid #42608e;
-            margin-bottom: 20px;
-            padding: 20px;
-            border-radius: 5px;
-        }
-
-        section h2, article h2 {
-            color: #0d47a1;
-            margin-top: 0;
-        }
-
-        /* Imagen */
-        section img {
-            width: 100%;
-            max-width: 500px;
-            height: auto;
-            margin: 10px 0;
-            border-radius: 5px;
-        }
-
-        /* Lista de servicios */
-        section ul {
-            line-height: 2;
-        }
-
-        section ul li {
-            color: #1565c0;
-            font-weight: bold;
-        }
-
-        /* Contacto - enlaces */
-        #contacto a {
-            color: #0d47a1;
-        }
-
-        /* Video */
-        article iframe {
-            width: 100%;
-            max-width: 560px;
-            height: 315px;
-            margin-top: 10px;
-        }
-
-        /* Aside */
-        aside {
-            background-color: white;
-            border-left: 5px solid #00897b;
-            padding: 20px;
-            border-radius: 5px;
-            height: fit-content;
-        }
-
-        aside h3 {
-            color: #00897b;
-            border-bottom: 1px solid #e0e0e0;
-            padding-bottom: 5px;
-        }
-
-        aside p {
-            font-size: 0.95em;
-            color: #555;
-        }
-
-        /* Footer */
-        footer {
-            background-color: #0d1b2a;
-            color: #ccc;
-            text-align: center;
-            padding: 20px;
-            margin-top: 20px;
-        }
-
-        footer p {
-            margin: 5px 0;
+        img {
+            max-width: 100%;
         }
     </style>
 </head>
 
 <body>
 
-    <!-- Encabezado principal -->
+    <!-- Header: Encabezado principal -->
     <header>
-        <img src="LOGO.PNG" alt="Logo JLM Connect 360">
+        <img src="LOGO.PNG" alt="Logo JLM Connect 360" width="120">
         <h1>JLM Connect 360</h1>
         <p>Internet sin límites, Ecuador conectado</p>
     </header>
 
-    <!-- Menú de navegación -->
+    <!-- Nav: Menú de navegación -->
     <nav>
-        <ul>
-            <li><a href="#inicio">Inicio</a></li>
-            <li><a href="#quienes-somos">Quiénes Somos</a></li>
-            <li><a href="#servicios">Servicios</a></li>
-            <li><a href="#contacto">Contacto</a></li>
-        </ul>
+        <a href="#inicio">Inicio</a>
+        <a href="#quienes-somos">Quiénes Somos</a>
+        <a href="#servicios">Servicios</a>
+        <a href="#contacto">Contacto</a>
     </nav>
 
-    <!-- Contenedor principal: main + aside -->
-    <div class="contenedor">
+    <!-- Main: Contenido principal -->
+    <main>
 
-        <main>
+        <!-- Section: Inicio -->
+        <section id="inicio">
+            <h2>Inicio</h2>
+            <p>
+                Bienvenido a JLM Connect 360. Ofrecemos servicios de internet y soluciones
+                tecnológicas para hogares y empresas en Macas y sus alrededores.
+            </p>
+        </section>
 
-            <!-- Sección Inicio -->
-            <section id="inicio">
-                <h2>Bienvenido</h2>
-                <p>
-                    Somos una empresa ecuatoriana que brinda internet de alta velocidad
-                    a hogares y pequeñas empresas en todo el Ecuador. Nuestra meta
-                    es mantenerte siempre conectado con un servicio confiable y accesible.
-                </p>
-            </section>
+        <!-- Section: Quiénes Somos -->
+        <section id="quienes-somos">
+            <h2>Quiénes Somos</h2>
 
-            <!-- Sección Quiénes Somos -->
-            <section id="quienes-somos">
-                <h2>Quiénes Somos</h2>
+            <img src="https://dplnews.com/wp-content/uploads/2020/10/dplnews_ecuador_mc81020.jpg"
+                alt="Infraestructura de red">
 
-                <img
-                    src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=600&q=80"
-                    alt="Infraestructura de red JLM Connect 360">
+            <p>
+                JLM Connect 360 es un emprendimiento tecnológico ecuatoriano dedicado a brindar
+                soluciones de conectividad para hogares y pequeñas empresas. Nuestro objetivo es
+                ofrecer internet de calidad, estable y accesible, acompañado de soporte técnico
+                oportuno y atención personalizada. Trabajamos con tecnología moderna para garantizar
+                una mejor experiencia de conexión y facilitar el acceso a la educación, el trabajo
+                y el entretenimiento digital. Además, ofrecemos equipos de red y asesoramiento
+                tecnológico para mejorar la infraestructura de nuestros clientes. Nuestro compromiso
+                es contribuir al desarrollo digital de la comunidad mediante servicios confiables y
+                soluciones adaptadas a las necesidades de cada usuario.
+            </p>
+        </section>
 
-                <p>
-                    JLM Connect 360 es un emprendimiento tecnológico ecuatoriano dedicado a brindar
-                    soluciones de conectividad integral para hogares y pequeñas empresas en Morona Santiago.
-                    Nuestra misión es cerrar la brecha digital ofreciendo planes de internet de alta velocidad,
-                    venta de equipos de red certificados y soporte técnico especializado. Nos distinguimos por
-                    nuestra atención personalizada, tiempos de respuesta rápidos y tarifas justas adaptadas a
-                    la realidad local. Creemos que el acceso a internet de calidad es un derecho fundamental
-                    para el desarrollo educativo y económico de nuestra comunidad amazónica.
-                </p>
-            </section>
+        <!-- Section: Servicios -->
+        <section id="servicios">
+            <h2>Servicios</h2>
 
-            <!-- Sección Servicios -->
-            <section id="servicios">
-                <h2>Servicios</h2>
-                <ul>
-                    <li>Planes de Internet (Básico, Estándar, Premium)</li>
-                    <li>Venta de Routers y Repetidores</li>
-                    <li>Instalación de Cableado Estructurado</li>
-                    <li>Soporte Técnico y Tickets de Ayuda</li>
-                    <li>Consultoría en Redes para PyMEs</li>
-                </ul>
-            </section>
+            <ul>
+                <li>Planes de Internet residencial</li>
+                <li>Planes de Internet empresarial</li>
+                <li>Venta de routers y repetidores</li>
+                <li>Instalación de cableado estructurado</li>
+                <li>Soporte técnico especializado</li>
+            </ul>
+        </section>
 
-            <!-- Article: Video -->
-            <article>
-                <h2>Video Informativo</h2>
-                <p>Fibra optica vs Internet Satelital</p>
-                <iframe
-                    src="https://www.youtube.com/embed/rm-yXq_BHGQ?si=nHWavsBs7AKKr3jU"
-                    title="Fibra ótica vs Internet satelital"
-                    allowfullscreen>
-                </iframe>
-            </article>
+        <!-- Article: Video relacionado con el proyecto -->
+        <article>
+            <h2>Video Informativo</h2>
+            <p>Fibra óptica vs Internet satelital</p>
 
-            <!-- Sección Contacto -->
-            <section id="contacto">
-                <h2>Contacto</h2>
-                <p>Correo: <a href="mailto:jlmconnect360@outlook.com">jlmconnect360@outlook.com</a></p>
-                <p>Teléfono: <a href="tel:0967845128">0967845128</a></p>
-                <p>Dirección: 
-                    <p></p>Sede Macas: Morona Santiago, Ecuador <p></p>Sede Quito: Pichincha, Ecuador.
-        
-                </p>
-                <p>
-                    Redes sociales:
-                    <a href="https://www.facebook.com" target="_blank">Facebook</a> |
-                    <a href="https://www.instagram.com" target="_blank">Instagram</a> |
-                    <a href="https://wa.me/593900000000" target="_blank">WhatsApp</a>
-                </p>
-            </section>
+            <iframe
+                width="560"
+                height="315"
+                src="https://www.youtube.com/embed/rm-yXq_BHGQ"
+                title="Fibra óptica vs Internet satelital"
+                allowfullscreen>
+            </iframe>
+        </article>
 
-        </main>
+        <!-- Section: Contacto -->
+        <section id="contacto">
+            <h2>Contacto</h2>
 
-        <!-- Información complementaria -->
-        <aside>
-            <h3>Promoción</h3>
-            <p>20% de descuento en instalación este mes. ¡No te pierdas esta oferta!</p>
+            <p>
+                Correo:
+                <a href="mailto:jlmconnect360@gmail.com">
+                    jlmconnect360@gmail.com
+                </a>
+            </p>
 
-            <h3>Horario de Atención</h3>
-            <p>Lunes a Viernes<br>08:00 - 18:00</p>
+            <p>
+                Teléfono:
+                <a href="tel:+593900000000">
+                    +593 900000000
+                </a>
+            </p>
 
-            <h3>Zona de Cobertura</h3>
-            <p>Centro de Macas y alrededores</p>
-        </aside>
+            <p>Dirección: Macas, Morona Santiago, Ecuador</p>
 
-    </div>
+            <p>
+                Redes sociales:
+                <a href="https://www.facebook.com" target="_blank">Facebook</a> |
+                <a href="https://www.instagram.com" target="_blank">Instagram</a> |
+                <a href="https://wa.me/593900000000" target="_blank">WhatsApp</a>
+            </p>
+        </section>
 
-    <!-- Pie de página -->
+    </main>
+
+    <!-- Aside: Información complementaria -->
+    <aside>
+        <h3>Promoción</h3>
+        <p>20% de descuento en instalación durante este mes.</p>
+
+        <h3>Horario de Atención</h3>
+        <p>Lunes a Viernes de 08:00 a 18:00.</p>
+    </aside>
+
+    <!-- Footer: Pie de página -->
     <footer>
-        <p>Desarrollado por: Jessica Pesantez, Lisseth Puco, Miguel Flores</p>
+        <p>Desarrollado por: Jessica Pesantez, Lisseth Pucco y Miguel Flores</p>
         <p>Asignatura: Desarrollo de Aplicaciones Web</p>
         <p>Año: 2026</p>
     </footer>
 
 </body>
+
 </html>
+```

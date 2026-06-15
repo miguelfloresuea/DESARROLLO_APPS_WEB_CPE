@@ -1,0 +1,60 @@
+/* Estilos Generales */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+}
+
+header,
+footer {
+    background-color: #3b69ae;
+    color: white;
+    text-align: center;
+    padding: 15px;
+}
+
+nav {
+    background-color: #1c4978;
+    text-align: center;
+    padding: 10px;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    margin: 0 10px;
+}
+
+/* Banner Principal */
+.banner {
+    width: 100%;
+    height: 50px; /* Ajusta este valor si quieres el banner más alto */
+    background-image: url('fondobanner.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* Foto Quiénes Somos (Alineada a la izquierda) */
+.foto-quienes-somos {
+    width: 100%;
+    max-width: 800px;
+    height: 350px;
+    margin: 20px 0 20px 0; /* Margen arriba/abajo, 0 a los lados */
+    background-image: url('FOTOEMPRESA.jpg');
+    background-size: cover;
+    background-position: left center; /* Enfoca la izquierda */
+    background-repeat: no-repeat;
+    border-radius: 10px;
+}
+
+/* Contenedores de contenido */
+main,
+aside,
+section,
+article {
+    padding: 15px;
+}
+
+img {
+    max-width: 100%;
+}

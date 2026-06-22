@@ -30,7 +30,7 @@ footer {
 
 /* Botones personalizados: degradado, bordes redondeados y sombra */
 .custom-btn {
-    background: linear-gradient(to right, #3b69ae, #1c4978);
+    background: linear-gradient(to right, #d4e3fa, #1c4978);
     border: none;
     border-radius: 25px;
     box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.2);
@@ -46,15 +46,16 @@ footer {
 
 /* Tarjetas de servicios */
 .custom-card {
+    background: linear-gradient(135deg, #d0d8e4, #1e6bb9) ; 
     border-radius: 15px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid #144dd2;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .custom-card:hover {
     transform: translateY(-10px);
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
-    border-color: #3b69ae;
+    border-color: #011b43;
 }
 
 /* Sección Inicio */

@@ -1,7 +1,5 @@
-/* Fuente Roboto desde Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
 
-/* Estilos generales */
 body {
     font-family: 'Roboto', Arial, sans-serif;
     margin: 0;
@@ -10,14 +8,11 @@ body {
     line-height: 1.6;
 }
 
-/* Header y footer con color corporativo */
-header,
-footer {
+header, footer {
     background-color: #3b69ae;
     color: white;
 }
 
-/* Banner principal con imagen de fondo */
 .banner {
     width: 100%;
     height: 350px;
@@ -28,7 +23,6 @@ footer {
     border-bottom: 5px solid #1c4978;
 }
 
-/* Botones personalizados: degradado, bordes redondeados y sombra */
 .custom-btn {
     background: linear-gradient(to right, #d4e3fa, #1c4978);
     border: none;
@@ -44,9 +38,8 @@ footer {
     color: #fff;
 }
 
-/* Tarjetas de servicios */
 .custom-card {
-    background: linear-gradient(135deg, #d0d8e4, #1e6bb9) ; 
+    background: linear-gradient(135deg, #d0d8e4, #1e6bb9);
     border-radius: 15px;
     border: 1px solid #144dd2;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -58,14 +51,12 @@ footer {
     border-color: #011b43;
 }
 
-/* Sección Inicio */
 .section-custom {
     background-color: white;
     border-radius: 15px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
 
-/* Imagen de Quiénes Somos */
 .custom-img {
     border: 3px solid #3b69ae;
     transition: transform 0.4s ease;
@@ -77,52 +68,36 @@ footer {
     transform: scale(1.02);
 }
 
-/* Texto de Quiénes Somos */
-.texto-quienes-somos {
-    width: 100%;
-}
-
 .texto-quienes-somos p {
     margin-bottom: 1rem;
     line-height: 1.8;
     text-align: justify;
 }
 
-/* Contenedor del video */
 .video-box {
     max-width: 800px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* Aside complementario */
 .custom-aside {
     background: linear-gradient(to right, #17a2b8, #0d6efd);
 }
 
-/* Formulario de contacto */
 form .form-control {
     border-radius: 10px;
 }
 
-/* Media query: ajustes para pantallas <= 768px */
+/* Estilo para los registros creados con JS */
+#lista-solicitudes .list-group-item {
+    border-left: 4px solid #1c4978;
+}
+
 @media (max-width: 768px) {
-    .banner {
-        height: 180px;
-    }
-
-    header h1 {
-        font-size: 24px;
-    }
-
-    .custom-aside h3 {
-        font-size: 20px;
-    }
-
-    .row > .col-md-6 {
-        margin-bottom: 20px;
-    }
-
-    .texto-quienes-somos p {
-        text-align: left;
-    }
+    .banner { height: 180px; }
+    header h1 { font-size: 24px; }
+    .custom-aside h3 { font-size: 20px; }
+    .row > .col-md-6 { margin-bottom: 20px; }
+    .texto-quienes-somos p { text-align: left; }
+    #lista-solicitudes .d-flex { flex-direction: column; align-items: flex-start !important; }
+    #lista-solicitudes .btn { margin-top: 8px; }
 }

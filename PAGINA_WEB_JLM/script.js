@@ -1,75 +1,51 @@
-// PARTE 1: DESARROLLADO POR JESSICA PESANTEZ
-const formulario = document.getElementById('formulario-contacto');
+// PARTE 1: JESSICA PESANTEZ
+
+const formulario = document.getElementById('formulario-solicitud');
 const listaSolicitudes = document.getElementById('lista-solicitudes');
 const contadorRegistros = document.getElementById('contador-registros');
-const mensajeValidacion = document.getElementById('mensaje-validacion');
-
-// Variable para llevar el total de registros
 let totalRegistros = 0;
 
-// Capturar el evento 'submit' cuando se envía el formulario
-formulario.addEventListener('submit', function (evento) {
-    // Evitar que la página se recargue sola
+formulario.addEventListener('submit', function(evento) {
     evento.preventDefault();
 
-    // Obtener los valores de los campos del formulario
-    const nombre = document.getElementById('nombre').value.trim();
-    const email = document.getElementById('email').value.trim();
-    const categoria = document.getElementById('categoria').value.trim();
-    const mensaje = document.getElementById('mensaje').value.trim();
+    const nombre      = document.getElementById('sol-nombre').value.trim();
+    const descripcion = document.getElementById('sol-descripcion').value.trim();
+    const categoria   = document.getElementById('sol-categoria').value;
 
-    // Validar que los campos no estén vacíos
-    if (nombre === "" || email === "" || categoria === "" || mensaje === "") {
-        mensajeValidacion.innerHTML = `
-            <div class="alert alert-danger" role="alert">
-                Por favor, llene todos los campos del formulario.
-            </div>
-        `;
-        return; // Detiene el código si faltan datos
-    }
+    // Ocultar errores anteriores
+    document.getElementById('error-nombre').style.display      = 'none';
+    document.getElementById('error-descripcion').style.display = 'none';
+    document.getElementById('error-categoria').style.display   = 'none';
 
-    // Mensaje de éxito dinámico
-    mensajeValidacion.innerHTML = `
-        <div class="alert alert-success" role="alert">
-            Solicitud registrada correctamente.
+    // Validar campos vacíos
+    let hayError = false;
+    if (nombre === '')      { document.getElementById('error-nombre').style.display = 'block'; hayError = true; }
+    if (descripcion === '') { document.getElementById('error-descripcion').style.display = 'block'; hayError = true; }
+    if (categoria === '')   { document.getElementById('error-categoria').style.display = 'block'; hayError = true; }
+    if (hayError) return;
+
+    // Crear elemento del registro
+    const nuevoItem = document.createElement('div');
+    nuevoItem.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'mb-2', 'rounded', 'shadow-sm');
+
+    nuevoItem.innerHTML = `
+        <div>
+            <strong class="text-primary">${nombre}</strong>
+            <p class="mb-1 text-muted">${descripcion}</p>
+            <span class="badge bg-secondary">${categoria}</span>
         </div>
+        <button class="btn btn-danger btn-sm ms-3">🗑 Eliminar</button>
     `;
 
-    // PARTE 2: DESARROLLADO POR LISSETH PUCO
-    // 1. Crear el elemento contenedor de la solicitud
-    const nuevoElemento = document.createElement('div');
-    nuevoElemento.classList.add('list-group-item', 'mb-2', 'p-3', 'border', 'rounded', 'd-flex', 'justify-content-between', 'align-items-start');
-
-    // 2. Insertar el texto en la interfaz usando las variables de Jessica
-    const contenidoTexto = document.createElement('div');
-    contenidoTexto.innerHTML = `
-        <strong>Nombre:</strong> ${nombre} <br>
-        <strong>Categoría:</strong> ${categoria} <br>
-        <small class="text-muted">Mensaje: ${mensaje}</small>
-    `;
-    nuevoElemento.appendChild(contenidoTexto);
-
-    // PARTE 3: DESARROLLADO POR MIGUEL FLORES
-    // 1. Crear botón de eliminar y manejar su evento click
-    const botonEliminar = document.createElement('button');
-    botonEliminar.textContent = 'Eliminar';
-    botonEliminar.classList.add('btn', 'btn-sm', 'btn-outline-danger');
-
-    botonEliminar.addEventListener('click', function () {
-        nuevoElemento.remove();
+    // Botón eliminar
+    nuevoItem.querySelector('button').addEventListener('click', function() {
+        nuevoItem.remove();
         totalRegistros--;
         contadorRegistros.textContent = totalRegistros;
     });
 
-    nuevoElemento.appendChild(botonEliminar);
-
-    // 2. Agregar la tarjeta al contenedor de la página
-    listaSolicitudes.appendChild(nuevoElemento);
-
-    // 3. Sumar 1 al contador de registros global
+    listaSolicitudes.appendChild(nuevoItem);
     totalRegistros++;
     contadorRegistros.textContent = totalRegistros;
-
-    // 4. Limpiar el formulario para nuevos mensajes
     formulario.reset();
 });

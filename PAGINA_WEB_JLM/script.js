@@ -55,13 +55,13 @@ formulario.addEventListener('submit', function(evento) {
     previa.id = 'vista-previa';
     previa.classList.add('alert', 'alert-info', 'mt-3');
     previa.innerHTML = `
-        <h5 class="mb-3">📋 Revisa tu solicitud:</h5>
+        <h5 class="mb-3"> Revisa tu solicitud:</h5>
         <p class="mb-1"><strong>Nombres y Apellidos:</strong> ${nombre}</p>
         <p class="mb-1"><strong>Categoría:</strong> ${categoria}</p>
         <p class="mb-3"><strong>Mensaje:</strong> ${descripcion}</p>
         <div class="d-flex gap-2">
-            <button id="btn-editar" class="btn btn-secondary">✏️ Editar</button>
-            <button id="btn-enviar" class="btn btn-success">📨 Enviar Solicitud</button>
+            <button id="btn-editar" class="btn btn-secondary"> Editar</button>
+            <button id="btn-enviar" class="btn btn-success"> Enviar Solicitud</button>
         </div>
     `;
     formulario.appendChild(previa);
@@ -78,7 +78,7 @@ formulario.addEventListener('submit', function(evento) {
         // Mostrar mensaje de éxito
         const alerta = document.createElement('div');
         alerta.classList.add('alert', 'alert-success', 'mt-2');
-        alerta.textContent = '✅ Su solicitud fue enviada con éxito.';
+        alerta.textContent = ' Su solicitud fue enviada con éxito.';
         formulario.appendChild(alerta);
         setTimeout(() => alerta.remove(), 3000);
 
@@ -91,7 +91,7 @@ formulario.addEventListener('submit', function(evento) {
                 <p class="mb-1"><strong>Categoría:</strong> ${categoria}</p>
                 <p class="mb-0 text-muted">Mensaje: ${descripcion}</p>
             </div>
-            <button class="btn btn-danger btn-sm ms-3">🗑 Eliminar</button>
+            <button class="btn btn-danger btn-sm ms-3"> Eliminar</button>
         `;
 
         // Botón eliminar registro

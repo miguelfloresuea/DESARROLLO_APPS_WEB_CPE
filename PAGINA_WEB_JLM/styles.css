@@ -3,13 +3,13 @@
 body {
     font-family: 'Roboto', Arial, sans-serif;
     margin: 0;
-    background-color: #f8f9fa;
-    color: #212529;
+    background-color: #f4f6f9;
+    color: #334155;
     line-height: 1.6;
 }
 
 header, footer {
-    background-color: #3b69ae;
+    background: linear-gradient(135deg, #0f4c81 0%, #1c4978 100%);
     color: white;
 }
 
@@ -20,11 +20,11 @@ header, footer {
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    border-bottom: 5px solid #1c4978;
+    border-bottom: 5px solid #e7e9ef;
 }
 
 .custom-btn {
-    background: linear-gradient(to right, #d4e3fa, #1c4978);
+    background: linear-gradient(135deg, #598f92 0%, #9dbfdb 100%);
     border: none;
     border-radius: 25px;
     box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.2);
@@ -39,9 +39,9 @@ header, footer {
 }
 
 .custom-card {
-    background: linear-gradient(135deg, #d0d8e4, #1e6bb9);
+    background: linear-gradient(135deg, #bfd1ef, #2d343a);
     border-radius: 15px;
-    border: 1px solid #144dd2;
+    border: 1px solid #5c5d61;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -58,7 +58,7 @@ header, footer {
 }
 
 .custom-img {
-    border: 3px solid #3b69ae;
+    border: 3px solid #ededee;
     transition: transform 0.4s ease;
     max-width: 100%;
     height: auto;
@@ -80,7 +80,7 @@ header, footer {
 }
 
 .custom-aside {
-    background: linear-gradient(to right, #17a2b8, #0d6efd);
+    background: linear-gradient(to right, #3f8ea0, #0c1a2f);
 }
 
 form .form-control {

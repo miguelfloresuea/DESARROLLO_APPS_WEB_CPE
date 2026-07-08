@@ -2,12 +2,28 @@
    ARCHIVO: registro.js
    Responsable: Miguel
    Función: Envío, vista previa, registro, conteo y eliminación
+   ------------------------------------------------------
+   CORREGIDO:
+   - Botones de la vista previa ahora usan type="button"
+     (antes disparaban un submit extra del formulario).
+   - Se agrega escapeHTML() para evitar inyección de HTML
+     en los campos nombre y descripción.
+   - previa y alerta usan class="col-12" para alinearse
+     bien dentro del <form class="row g-3">.
 ======================================================= */
 
 const formulario = document.getElementById('formulario-solicitud');
 const listaSolicitudes = document.getElementById('lista-solicitudes');
 const contadorRegistros = document.getElementById('contador-registros');
 let totalRegistros = 0;
+
+// Convierte texto en HTML seguro (evita que <script> o etiquetas
+// escritas por el usuario se interpreten como código/HTML real)
+function escapeHTML(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
 
 // Escucha el envío del formulario
 formulario.addEventListener('submit', function (evento) {
@@ -31,15 +47,15 @@ function mostrarVistaPrevia(nombre, descripcion, categoria) {
 
     const previa = document.createElement('div');
     previa.id = 'vista-previa';
-    previa.classList.add('alert', 'alert-info', 'mt-3');
+    previa.classList.add('alert', 'alert-info', 'mt-3', 'col-12');
     previa.innerHTML = `
         <h5 class="mb-3">📋 Revisa tu solicitud:</h5>
-        <p class="mb-1"><strong>Nombres y Apellidos:</strong> ${nombre}</p>
-        <p class="mb-1"><strong>Categoría:</strong> ${categoria}</p>
-        <p class="mb-3"><strong>Mensaje:</strong> ${descripcion}</p>
+        <p class="mb-1"><strong>Nombres y Apellidos:</strong> ${escapeHTML(nombre)}</p>
+        <p class="mb-1"><strong>Categoría:</strong> ${escapeHTML(categoria)}</p>
+        <p class="mb-3"><strong>Mensaje:</strong> ${escapeHTML(descripcion)}</p>
         <div class="d-flex gap-2">
-            <button id="btn-editar" class="btn btn-secondary">✏️ Editar</button>
-            <button id="btn-enviar" class="btn btn-success">📨 Enviar Solicitud</button>
+            <button type="button" id="btn-editar" class="btn btn-secondary">✏️ Editar</button>
+            <button type="button" id="btn-enviar" class="btn btn-success">📨 Enviar Solicitud</button>
         </div>
     `;
     formulario.appendChild(previa);
@@ -59,7 +75,7 @@ function registrarSolicitud(nombre, descripcion, categoria) {
 
     // Mensaje de éxito
     const alerta = document.createElement('div');
-    alerta.classList.add('alert', 'alert-success', 'mt-2');
+    alerta.classList.add('alert', 'alert-success', 'mt-2', 'col-12');
     alerta.textContent = '✅ Su solicitud fue enviada con éxito.';
     formulario.appendChild(alerta);
     setTimeout(() => alerta.remove(), 3000);
@@ -69,11 +85,11 @@ function registrarSolicitud(nombre, descripcion, categoria) {
     nuevoItem.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'mb-2', 'rounded', 'shadow-sm');
     nuevoItem.innerHTML = `
         <div>
-            <p class="mb-1"><strong>Nombres y Apellidos:</strong> ${nombre}</p>
-            <p class="mb-1"><strong>Categoría:</strong> ${categoria}</p>
-            <p class="mb-0 text-muted">Mensaje: ${descripcion}</p>
+            <p class="mb-1"><strong>Nombres y Apellidos:</strong> ${escapeHTML(nombre)}</p>
+            <p class="mb-1"><strong>Categoría:</strong> ${escapeHTML(categoria)}</p>
+            <p class="mb-0 text-muted">Mensaje: ${escapeHTML(descripcion)}</p>
         </div>
-        <button class="btn btn-danger btn-sm ms-3">🗑 Eliminar</button>
+        <button type="button" class="btn btn-danger btn-sm ms-3">🗑 Eliminar</button>
     `;
 
     // Botón eliminar

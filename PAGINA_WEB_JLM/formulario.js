@@ -1,6 +1,6 @@
 /* =======================================================
    ARCHIVO: formulario.js
-   Responsable: Lisseth
+   Responsable: Lisseth 
    Función: Validar Descripción y Categoría
 ======================================================= */
 
@@ -53,3 +53,12 @@ campoDescripcion.addEventListener('input', validarDescripcion);
 campoDescripcion.addEventListener('blur', validarDescripcion);
 campoCategoria.addEventListener('change', validarCategoria);
 campoCategoria.addEventListener('blur', validarCategoria);
+
+// Condicional según el estado de los datos: muestra u oculta
+// el mensaje "Aún no hay solicitudes" dependiendo del arreglo
+// "solicitudes" definido en registro.js
+function actualizarMensajeEstado() {
+    const mensaje = document.getElementById('mensaje-vacio');
+    if (!mensaje) return;
+    mensaje.style.display = solicitudes.length === 0 ? 'block' : 'none';
+}

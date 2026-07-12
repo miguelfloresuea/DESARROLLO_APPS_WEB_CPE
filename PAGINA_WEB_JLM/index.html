@@ -9,13 +9,16 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-
+    <!-- ===================================================
+     PLANTILLA BASE (futuro base.html en Flask)
+     Este encabezado se repetirá en todas las páginas
+    =================================================== -->
     <header class="text-center p-3">
         <img src="LOGO.png" alt="Logo JLM Connect 360" width="120" class="img-fluid mb-2">
         <h1>JLM Connect 360</h1>
         <p class="lead">Conecta con el mundo, Internet sin límites</p>
     </header>
-
+    <!-- Barra de navegación: sección reutilizable, iría en base.html -->
     <nav class="navbar navbar-expand-lg navbar-dark sticky-top" style="background-color: #1c4978;">
         <div class="container">
             <a class="navbar-brand d-lg-none" href="#">Menú</a>
@@ -35,9 +38,9 @@
     </nav>
 
     <div class="banner"></div>
-
+    <!-- CONTENIDO DINÁMICO: esta sección cambiaría según la vista (Flask: {% block content %}) -->
     <main class="container my-5">
-
+ 
         <section id="inicio" class="text-center mb-5 p-4 section-custom">
             <h2 class="mb-3">Inicio</h2>
             <p class="fs-5">
@@ -142,6 +145,8 @@
 
             <div class="mt-4 p-3 bg-white rounded shadow-sm">
                 <h4>Solicitudes registradas: <span id="contador-registros" class="badge bg-primary">0</span></h4>
+                <!-- Mensaje condicional: se oculta/muestra según el estado del arreglo de solicitudes -->
+                <p id="mensaje-vacio" class="text-muted text-center">Aún no hay solicitudes registradas.</p>
                 <div id="lista-solicitudes" class="list-group mt-3"></div>
             </div>
         </section>
@@ -204,7 +209,7 @@
             </div>
         </div>
     </aside>
-
+    <!-- PLANTILLA BASE: pie de página común a todas las vistas -->
     <footer class="p-4 mt-auto text-center">
         <p class="m-1">Desarrollado por: Jessica Pesantez, Lisseth Puco y Miguel Flores</p>
         <p class="m-1">Asignatura: Desarrollo de Aplicaciones Web - UEA</p>

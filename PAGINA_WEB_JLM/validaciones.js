@@ -40,3 +40,12 @@ function validarNombre() {
 // Escucha mientras escribe y cuando sale del campo
 campoNombre.addEventListener('input', validarNombre);
 campoNombre.addEventListener('blur', validarNombre);
+// Transforma el nombre: primera letra de cada palabra en mayúscula
+// (equivalente al filtro |upper visto en la guía de plantillas, aplicado por palabra)
+function capitalizarNombre(nombre) {
+    return nombre
+        .split(' ')
+        .filter(palabra => palabra.length > 0)
+        .map(palabra => palabra.charAt(0).toUpperCase() + palabra.slice(1).toLowerCase())
+        .join(' ');
+}

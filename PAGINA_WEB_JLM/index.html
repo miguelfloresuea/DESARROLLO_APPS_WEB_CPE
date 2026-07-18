@@ -126,12 +126,14 @@
                         <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
                         <span class="small text-muted ms-1">Verificando...</span>
                     </div>
-                </div>              
+                </div>    
                 <div class="col-md-4">
-                    <label for="sol-descripcion" class="form-label">Descripción</label>
-                    <input type="text" class="form-control" id="sol-descripcion" placeholder="¿Qué necesitas?">
-                    <div id="error-descripcion" class="text-danger small mt-1" style="display:none;">⚠ Escribe una descripción.</div>
-                </div>
+    <label for="sol-descripcion" class="form-label">
+        Descripción <span id="contador-descripcion" class="badge bg-secondary">0</span>
+    </label>
+    <input type="text" class="form-control" id="sol-descripcion" placeholder="¿Qué necesitas?">
+    <div id="error-descripcion" class="text-danger small mt-1" style="display:none;">⚠ Escribe una descripción.</div>
+</div>
                 <div class="col-md-4">
                     <label for="sol-categoria" class="form-label">Categoría / Tipo</label>
                     <select class="form-select" id="sol-categoria">

@@ -2,10 +2,22 @@
    ARCHIVO: formulario.js
    Responsable: Lisseth 
    Función: Validar Descripción y Categoría
+   ACTUALIZADO Semana 8:
+   - Badge Bootstrap con contador de caracteres en vivo
+   - Alerta Bootstrap dinámica para el error de Categoría
 ======================================================= */
 
 const campoDescripcion = document.getElementById('sol-descripcion');
 const campoCategoria = document.getElementById('sol-categoria');
+const contadorDescripcion = document.getElementById('contador-descripcion');
+
+// Actualiza el badge con el número de caracteres escritos
+function actualizarContadorDescripcion() {
+    if (!contadorDescripcion) return;
+    const cantidad = campoDescripcion.value.trim().length;
+    contadorDescripcion.textContent = cantidad;
+    contadorDescripcion.className = cantidad >= 10 ? 'badge bg-success' : 'badge bg-secondary';
+}
 
 // Valida que la descripción no esté vacía y tenga mínimo 10 caracteres
 function validarDescripcion() {
@@ -32,11 +44,13 @@ function validarDescripcion() {
     return true;
 }
 
-// Valida que se haya elegido una categoría
+// Valida que se haya elegido una categoría (ahora con alerta Bootstrap)
 function validarCategoria() {
     const error = document.getElementById('error-categoria');
 
     if (campoCategoria.value === '') {
+        error.className = 'alert alert-danger py-1 px-2 mt-1 small';
+        error.textContent = '⚠ Selecciona una categoría.';
         error.style.display = 'block';
         campoCategoria.classList.add('is-invalid');
         campoCategoria.classList.remove('is-valid');
@@ -49,7 +63,10 @@ function validarCategoria() {
 }
 
 // Validación en tiempo real
-campoDescripcion.addEventListener('input', validarDescripcion);
+campoDescripcion.addEventListener('input', function () {
+    validarDescripcion();
+    actualizarContadorDescripcion();
+});
 campoDescripcion.addEventListener('blur', validarDescripcion);
 campoCategoria.addEventListener('change', validarCategoria);
 campoCategoria.addEventListener('blur', validarCategoria);

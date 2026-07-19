@@ -2,36 +2,44 @@
    ARCHIVO: registro.js
    Responsable: Miguel
    Función: Envío, vista previa, registro con arreglo,
-   renderizado dinámico, conteo y eliminación
+   renderizado dinámico en TABLA, conteo, modal y eliminación
    ------------------------------------------------------
-   ACTUALIZADO Semana 7:
-   - Las solicitudes ahora se guardan en un arreglo de
-     objetos (antes se creaban directo en el DOM).
-   - renderizarSolicitudes() recorre el arreglo con
-     forEach y regenera la lista completa.
-   - Usa capitalizarNombre() de validaciones.js.
-   - Llama a actualizarMensajeEstado() de formulario.js.
+   ACTUALIZADO Semana 8:
+   - La lista ahora se renderiza como tabla Bootstrap
+   - Botón "Ver" abre un modal Bootstrap con el detalle
 ======================================================= */
 
 const formulario = document.getElementById('formulario-solicitud');
-const listaSolicitudes = document.getElementById('lista-solicitudes');
+// CORREGIDO: Vinculado al elemento ID tbody real del HTML ('tabla-solicitudes')
+const listaSolicitudes = document.getElementById('tabla-solicitudes');
 const contadorRegistros = document.getElementById('contador-registros');
 
 // Arreglo de objetos: cada solicitud = {nombre, descripcion, categoria}
 let solicitudes = [];
 
-// Convierte texto en HTML seguro (evita inyección de código)
+// Convierte texto en HTML seguro (evita inyección de código XSS)
 function escapeHTML(str) {
     const div = document.createElement('div');
     div.textContent = str;
     return div.innerHTML;
 }
 
+// CORREGIDO: Mudado de forma nativa a este script para evitar ReferenceError de archivos cruzados
+function actualizarMensajeEstado() {
+    const mensaje = document.getElementById('mensaje-vacio');
+    if (!mensaje) return;
+    mensaje.style.display = solicitudes.length === 0 ? 'block' : 'none';
+}
+
 // Escucha el envío del formulario
 formulario.addEventListener('submit', function (evento) {
     evento.preventDefault();
 
-    const ok = validarNombre() && validarDescripcion() && validarCategoria();
+    // Verificación segura ante cargas asíncronas
+    const ok = (typeof validarNombre === 'function' ? validarNombre() : true) && 
+               (typeof validarDescripcion === 'function' ? validarDescripcion() : true) && 
+               (typeof validarCategoria === 'function' ? validarCategoria() : true);
+               
     if (!ok) return;
 
     const nombre = document.getElementById('sol-nombre').value.trim();
@@ -71,7 +79,7 @@ function mostrarVistaPrevia(nombre, descripcion, categoria) {
 
 // Agrega la solicitud al arreglo y actualiza la vista
 function registrarSolicitud(nombre, descripcion, categoria) {
-    const nombreFormateado = capitalizarNombre(nombre); // función de Jessica (validaciones.js)
+    const nombreFormateado = typeof capitalizarNombre === 'function' ? capitalizarNombre(nombre) : nombre;
 
     solicitudes.push({
         nombre: nombreFormateado,
@@ -81,50 +89,67 @@ function registrarSolicitud(nombre, descripcion, categoria) {
 
     renderizarSolicitudes();
 
-    // Mensaje de éxito
     const alerta = document.createElement('div');
     alerta.classList.add('alert', 'alert-success', 'mt-2', 'col-12');
     alerta.textContent = '✅ Su solicitud fue enviada con éxito.';
     formulario.appendChild(alerta);
     setTimeout(() => alerta.remove(), 3000);
 
-    // Limpia el formulario y los estilos de validación
     formulario.reset();
-    [campoNombre, campoDescripcion, campoCategoria].forEach(campo => {
+    
+    // CORREGIDO: Busca los campos reactivos de forma local en el formulario para limpiar los bordes verdes/rojos de Bootstrap
+    formulario.querySelectorAll('.form-control, .form-select').forEach(campo => {
         campo.classList.remove('is-valid', 'is-invalid');
     });
+
+    if (typeof actualizarContadorDescripcion === 'function') {
+        actualizarContadorDescripcion();
+    }
 }
 
-// Recorre el arreglo "solicitudes" y regenera la lista en pantalla
-// (Estructura repetitiva pedida en la Semana 7, equivalente a un {% for %} de plantillas)
+// Recorre el arreglo "solicitudes" y regenera la TABLA en pantalla
 function renderizarSolicitudes() {
+    if (!listaSolicitudes) return;
     listaSolicitudes.innerHTML = '';
 
     solicitudes.forEach((solicitud, indice) => {
-        const item = document.createElement('div');
-        item.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'mb-2', 'rounded', 'shadow-sm');
-        item.innerHTML = `
-            <div>
-                <p class="mb-1"><strong>Nombres y Apellidos:</strong> ${escapeHTML(solicitud.nombre)}</p>
-                <p class="mb-1"><strong>Categoría:</strong> ${escapeHTML(solicitud.categoria)}</p>
-                <p class="mb-0 text-muted">Mensaje: ${escapeHTML(solicitud.descripcion)}</p>
-            </div>
-            <button type="button" class="btn btn-danger btn-sm ms-3">🗑 Eliminar</button>
+        const fila = document.createElement('tr');
+        fila.innerHTML = `
+            <td>${escapeHTML(solicitud.nombre)}</td>
+            <td><span class="badge bg-info text-dark">${escapeHTML(solicitud.categoria)}</span></td>
+            <td>${escapeHTML(solicitud.descripcion.substring(0, 20))}${solicitud.descripcion.length > 20 ? '...' : ''}</td>
+            <td>
+                <button type="button" class="btn btn-primary btn-sm ver-detalle">👁 Ver</button>
+                <button type="button" class="btn btn-danger btn-sm eliminar">🗑</button>
+            </td>
         `;
 
-        item.querySelector('button').addEventListener('click', function () {
+        fila.querySelector('.ver-detalle').addEventListener('click', function () {
+            mostrarDetalleModal(solicitud);
+        });
+
+        fila.querySelector('.eliminar').addEventListener('click', function () {
             eliminarSolicitud(indice);
         });
 
-        listaSolicitudes.appendChild(item);
+        listaSolicitudes.appendChild(fila);
     });
 
-    contadorRegistros.textContent = solicitudes.length;
-
-    // Condicional según el estado de los datos (función de Lisseth, formulario.js)
-    if (typeof actualizarMensajeEstado === 'function') {
-        actualizarMensajeEstado();
+    if (contadorRegistros) {
+        contadorRegistros.textContent = solicitudes.length;
     }
+
+    actualizarMensajeEstado();
+}
+
+// Llena y abre el modal Bootstrap con el detalle de una solicitud
+function mostrarDetalleModal(solicitud) {
+    document.getElementById('modal-nombre').textContent = solicitud.nombre;
+    document.getElementById('modal-categoria').textContent = solicitud.categoria;
+    document.getElementById('modal-descripcion').textContent = solicitud.descripcion;
+
+    const modal = new bootstrap.Modal(document.getElementById('modalDetalle'));
+    modal.show();
 }
 
 // Elimina una solicitud del arreglo según su posición

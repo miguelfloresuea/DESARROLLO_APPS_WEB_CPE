@@ -16,7 +16,7 @@ header, footer {
 .banner {
     width: 100%;
     height: 350px;
-    background-image: url('fondobanner.png');
+    background-image: url('../img/fondobanner.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="JLM Connect 360 - Internet en Morona Santiago">
+    <title>{% block title %}JLM Connect 360{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <header class="text-center p-3">
+        <img src="{{ url_for('static', filename='img/LOGO.png') }}" alt="Logo JLM Connect 360" width="120" class="img-fluid mb-2">
+        <h1>JLM Connect 360</h1>
+        <p class="lead">Conecta con el mundo, Internet sin límites</p>
+    </header>
+
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top" style="background-color: #1c4978;">
+        <div class="container">
+            <a class="navbar-brand d-lg-none" href="{{ url_for('inicio') }}">Menú</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item"><a class="nav-link m-2" href="{{ url_for('inicio') }}">Inicio</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    {% block banner %}{% endblock %}
+
+    <main class="container my-5">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="p-4 mt-auto text-center">
+        <p class="m-1">Desarrollado por: Jessica Pesantez, Lisseth Puco y Miguel Flores</p>
+        <p class="m-1">Asignatura: Desarrollo de Aplicaciones Web - UEA</p>
+        <p class="m-1">Año: 2026</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

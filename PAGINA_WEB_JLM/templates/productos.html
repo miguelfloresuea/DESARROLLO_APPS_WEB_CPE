@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Planes - JLM Connect 360{% endblock %}
+{% block content %}
+<section class="mb-5">
+    <h2 class="text-center mb-2">Nuestros Planes de Internet</h2>
+    <p class="text-center text-muted mb-4">Datos de ejemplo mientras se integra la base de datos.</p>
+    <div class="row">
+        {% for plan in planes %}
+        <div class="col-md-6 col-lg-3 mb-4">
+            <div class="card h-100 custom-card text-center">
+                <div class="card-body">
+                    <h5 class="card-title text-primary">{{ plan.nombre }}</h5>
+                    <p class="card-text mb-1"><strong>{{ plan.velocidad }}</strong></p>
+                    <p class="card-text fs-4 mb-1">{{ plan.precio }} <small class="text-muted">/mes</small></p>
+                    <p class="card-text">{{ plan.descripcion }}</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

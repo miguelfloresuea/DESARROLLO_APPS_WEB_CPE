@@ -1,13 +1,4 @@
-from flask import Flask, render_template
-
-app = Flask(__name__)
-
-
-@app.route('/')
-def inicio():
-    return render_template('index.html')
-
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 
 app = Flask(__name__)
 
@@ -63,7 +54,20 @@ def facturacion():
     return render_template('facturacion.html', facturas=facturas)
 
 
+@app.route('/contacto', methods=['POST'])
+def procesar_contacto():
+    nombre = request.form.get('nombre')
+    email = request.form.get('email')
+    asunto = request.form.get('asunto')
+    mensaje = request.form.get('mensaje')
+    return render_template(
+        'confirmacion.html',
+        nombre=nombre,
+        email=email,
+        asunto=asunto,
+        mensaje=mensaje
+    )
+
+
 if __name__ == '__main__':
     app.run(debug=True)
-
-

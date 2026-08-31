@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Nuevo Proveedor - JLM Connect 360{% endblock %}
+{% block content %}
+<section class="mb-5 p-4 section-custom">
+    <h2 class="text-center mb-4">Registrar Nuevo Proveedor</h2>
+    <form method="POST" class="col-md-6 mx-auto">
+        {{ form.hidden_tag() }}
+        <div class="mb-3">
+            {{ form.nombre.label(class="form-label") }}
+            {{ form.nombre(class="form-control") }}
+            {% for error in form.nombre.errors %}
+            <div class="text-danger small">{{ error }}</div>
+            {% endfor %}
+        </div>
+        <div class="mb-3">
+            {{ form.producto.label(class="form-label") }}
+            {{ form.producto(class="form-control") }}
+            {% for error in form.producto.errors %}
+            <div class="text-danger small">{{ error }}</div>
+            {% endfor %}
+        </div>
+        <div class="mb-3">
+            {{ form.contacto.label(class="form-label") }}
+            {{ form.contacto(class="form-control") }}
+            {% for error in form.contacto.errors %}
+            <div class="text-danger small">{{ error }}</div>
+            {% endfor %}
+        </div>
+        {{ form.submit(class="btn btn-primary custom-btn") }}
+    </form>
+</section>
+{% endblock %}

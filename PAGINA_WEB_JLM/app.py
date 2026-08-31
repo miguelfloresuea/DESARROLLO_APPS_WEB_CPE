@@ -2,6 +2,8 @@ from flask import Flask, render_template, request
 
 app = Flask(__name__)
 
+app.config['SECRET_KEY'] = 'jlmconnect360-clave-secreta-2026'
+
 planes = [
     {"nombre": "Plan Residencial", "velocidad": "20 Mbps", "precio": "$18.00", "descripcion": "Ideal para navegación, streaming y videollamadas familiares."},
     {"nombre": "Plan Empresarial", "velocidad": "50 Mbps simétrico", "precio": "$45.00", "descripcion": "Conexión de alta velocidad y estabilidad para negocios."},

@@ -1,15 +1,14 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for
+from forms.producto_form import ProductoForm
+from forms.cliente_form import ClienteForm
+from forms.proveedor_form import ProveedorForm
+from forms.facturacion_form import FacturacionForm
+from database import init_db, get_connection
 
 app = Flask(__name__)
-
 app.config['SECRET_KEY'] = 'jlmconnect360-clave-secreta-2026'
 
-planes = [
-    {"nombre": "Plan Residencial", "velocidad": "20 Mbps", "precio": "$18.00", "descripcion": "Ideal para navegación, streaming y videollamadas familiares."},
-    {"nombre": "Plan Empresarial", "velocidad": "50 Mbps simétrico", "precio": "$45.00", "descripcion": "Conexión de alta velocidad y estabilidad para negocios."},
-    {"nombre": "Plan Educativo", "velocidad": "15 Mbps", "precio": "$12.00", "descripcion": "Tarifa preferencial para instituciones educativas."},
-    {"nombre": "Plan Rural", "velocidad": "10 Mbps", "precio": "$15.00", "descripcion": "Cobertura mediante enlaces punto a multipunto de 5 GHz."},
-]
+init_db()
 
 clientes = [
     {"id": 1, "nombre": "Carlos Andrade", "sector": "Macas Centro", "plan": "Residencial", "estado": "Activo"},
@@ -38,7 +37,28 @@ def inicio():
 
 @app.route('/productos')
 def productos():
-    return render_template('productos.html', planes=planes)
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM productos')
+    planes_db = cursor.fetchall()
+    conn.close()
+    return render_template('productos.html', planes=planes_db)
+
+
+@app.route('/productos/nuevo', methods=['GET', 'POST'])
+def nuevo_producto():
+    form = ProductoForm()
+    if form.validate_on_submit():
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            'INSERT INTO productos (nombre, velocidad, precio, descripcion) VALUES (?, ?, ?, ?)',
+            (form.nombre.data, form.velocidad.data, form.precio.data, form.descripcion.data)
+        )
+        conn.commit()
+        conn.close()
+        return redirect(url_for('productos'))
+    return render_template('formulario_producto.html', form=form)
 
 
 @app.route('/clientes')
@@ -46,14 +66,59 @@ def clientes_route():
     return render_template('clientes.html', clientes=clientes)
 
 
+@app.route('/clientes/nuevo', methods=['GET', 'POST'])
+def nuevo_cliente():
+    form = ClienteForm()
+    if form.validate_on_submit():
+        nuevo_id = len(clientes) + 1
+        clientes.append({
+            "id": nuevo_id,
+            "nombre": form.nombre.data,
+            "sector": form.sector.data,
+            "plan": form.plan.data,
+            "estado": form.estado.data
+        })
+        return redirect(url_for('clientes_route'))
+    return render_template('formulario_cliente.html', form=form)
+
+
 @app.route('/proveedores')
 def proveedores_route():
     return render_template('proveedores.html', proveedores=proveedores)
 
 
+@app.route('/proveedores/nuevo', methods=['GET', 'POST'])
+def nuevo_proveedor():
+    form = ProveedorForm()
+    if form.validate_on_submit():
+        nuevo_id = len(proveedores) + 1
+        proveedores.append({
+            "id": nuevo_id,
+            "nombre": form.nombre.data,
+            "producto": form.producto.data,
+            "contacto": form.contacto.data
+        })
+        return redirect(url_for('proveedores_route'))
+    return render_template('formulario_proveedor.html', form=form)
+
+
 @app.route('/facturacion')
 def facturacion():
     return render_template('facturacion.html', facturas=facturas)
+
+
+@app.route('/facturacion/nueva', methods=['GET', 'POST'])
+def nueva_factura():
+    form = FacturacionForm()
+    if form.validate_on_submit():
+        facturas.append({
+            "numero": form.numero.data,
+            "cliente": form.cliente.data,
+            "monto": form.monto.data,
+            "estado": form.estado.data
+        })
+        return redirect(url_for('facturacion'))
+    return render_template('formulario_facturacion.html', form=form)
 
 
 @app.route('/contacto', methods=['POST'])

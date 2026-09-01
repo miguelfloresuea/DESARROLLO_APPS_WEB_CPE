@@ -3,10 +3,10 @@
 {% block content %}
 <section class="mb-5 p-4 section-custom">
     <h2 class="text-center mb-2">Facturación</h2>
-    <p class="text-center text-muted mb-4">
-        Estado de pago de los servicios (datos de ejemplo).
-        Total de facturas: <strong>{{ facturas | length }}</strong>
+    <p class="text-center">
+    <a href="{{ url_for('nueva_factura') }}" class="btn btn-outline-primary">+ Registrar nueva factura</a>
     </p>
+   
     <div class="table-responsive">
         <table class="table table-hover align-middle">
             <thead><tr><th>N° Factura</th><th>Cliente</th><th>Monto</th><th>Estado</th></tr></thead>

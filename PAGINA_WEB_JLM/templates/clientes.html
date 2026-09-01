@@ -3,10 +3,10 @@
 {% block content %}
 <section class="mb-5 p-4 section-custom">
     <h2 class="text-center mb-2">Clientes</h2>
-    <p class="text-center text-muted mb-4">
-        Listado de ejemplo de clientes registrados.
-        Total: <strong>{{ clientes | length }}</strong>
-    </p>
+    <p class="text-center">
+    <a href="{{ url_for('nuevo_cliente') }}" class="btn btn-outline-primary">+ Registrar nuevo cliente</a>
+     </p>
+
     <div class="table-responsive">
         <table class="table table-hover align-middle">
             <thead>

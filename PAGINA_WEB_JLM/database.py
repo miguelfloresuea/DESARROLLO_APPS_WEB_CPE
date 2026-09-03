@@ -33,7 +33,25 @@ def init_db():
             contacto TEXT NOT NULL
         )
     ''')
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS clientes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nombre TEXT NOT NULL,
+            sector TEXT NOT NULL,
+            plan TEXT NOT NULL,
+            estado TEXT NOT NULL
+        )
+    ''')
 
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS facturas (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            numero TEXT NOT NULL,
+            cliente TEXT NOT NULL,
+            monto TEXT NOT NULL,
+            estado TEXT NOT NULL
+        )
+    ''')
     cursor.execute('SELECT COUNT(*) FROM productos')
     if cursor.fetchone()[0] == 0:
         planes_iniciales = [

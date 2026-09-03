@@ -25,6 +25,15 @@ def init_db():
         )
     ''')
 
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS proveedores (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nombre TEXT NOT NULL,
+            producto TEXT NOT NULL,
+            contacto TEXT NOT NULL
+        )
+    ''')
+
     cursor.execute('SELECT COUNT(*) FROM productos')
     if cursor.fetchone()[0] == 0:
         planes_iniciales = [

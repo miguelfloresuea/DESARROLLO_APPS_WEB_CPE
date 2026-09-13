@@ -2,10 +2,14 @@
 <div class="col-md-6 col-lg-3 mb-4">
     <div class="card h-100 custom-card text-center">
         <div class="card-body">
-            <h5 class="card-title text-primary">{{ plan.nombre }}</h5>
+            <h5 class="card-title">{{ plan.nombre }}</h5>
             <p class="card-text mb-1"><strong>{{ plan.velocidad }}</strong></p>
-            <p class="card-text fs-4 mb-1">{{ plan.precio }} <small class="text-muted">/mes</small></p>
+            <p class="card-text fs-4 mb-1">{{ plan.precio }} <small>/mes</small></p>
             <p class="card-text">{{ plan.descripcion }}</p>
+            <div class="d-flex justify-content-center gap-2 mt-2">
+                <a href="{{ url_for('editar_producto', id_producto=plan.id_producto) }}" class="btn btn-sm btn-light">Editar</a>
+                <a href="{{ url_for('eliminar_producto', id_producto=plan.id_producto) }}" class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar este plan?');">Eliminar</a>
+            </div>
         </div>
     </div>
 </div>

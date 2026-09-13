@@ -24,31 +24,55 @@ header, footer {
 }
 
 .custom-btn {
-    background: linear-gradient(135deg, #598f92 0%, #9dbfdb 100%);
+    background-color: #1c4978;
     border: none;
     border-radius: 25px;
     box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.2);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     color: white;
+    font-weight: 700;
 }
 
 .custom-btn:hover {
     transform: scale(1.05);
     box-shadow: 4px 6px 15px rgba(0, 0, 0, 0.4);
     color: #fff;
+    background-color: #16395f;
 }
 
 .custom-card {
-    background: linear-gradient(135deg, #bfd1ef, #2d343a);
+    background-color: #1c4978;
     border-radius: 15px;
-    border: 1px solid #5c5d61;
+    border: none;
+    color: #ffffff;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.custom-card .card-title {
+    color: #a9d6e5 !important;
+    font-weight: 700;
+}
+
+.custom-card .card-text {
+    color: #ffffff;
 }
 
 .custom-card:hover {
     transform: translateY(-10px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
-    border-color: #011b43;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25);
+}
+
+.custom-card .btn {
+    font-weight: 700;
+    letter-spacing: 0.3px;
+}
+
+.custom-card .btn-light {
+    color: #1c4978;
+}
+
+.custom-card .btn-danger {
+    color: #ffffff;
 }
 
 .section-custom {
@@ -80,7 +104,7 @@ header, footer {
 }
 
 .custom-aside {
-    background: linear-gradient(to right, #3f8ea0, #0c1a2f);
+    background-color: #1c4978;
 }
 
 form .form-control {

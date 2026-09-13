@@ -3,12 +3,10 @@ from forms.producto_form import ProductoForm
 from forms.cliente_form import ClienteForm
 from forms.proveedor_form import ProveedorForm
 from forms.facturacion_form import FacturacionForm
-from database import init_db, get_connection
+from conexion.conexion import get_connection
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'jlmconnect360-clave-secreta-2026'
-
-init_db()
 
 clientes = [
     {"id": 1, "nombre": "Carlos Andrade", "sector": "Macas Centro", "plan": "Residencial", "estado": "Activo"},
@@ -39,9 +37,19 @@ def inicio():
 def productos():
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute('SELECT * FROM productos')
-    planes_db = cursor.fetchall()
+    cursor.execute('SELECT id_producto, nombre, velocidad, precio, descripcion FROM productos')
+    filas = cursor.fetchall()
+    cursor.close()
     conn.close()
+    planes_db = []
+    for fila in filas:
+        planes_db.append({
+            "id_producto": fila[0],
+            "nombre": fila[1],
+            "velocidad": fila[2],
+            "precio": fila[3],
+            "descripcion": fila[4]
+        })
     return render_template('productos.html', planes=planes_db)
 
 
@@ -52,13 +60,55 @@ def nuevo_producto():
         conn = get_connection()
         cursor = conn.cursor()
         cursor.execute(
-            'INSERT INTO productos (nombre, velocidad, precio, descripcion) VALUES (?, ?, ?, ?)',
+            'INSERT INTO productos (nombre, velocidad, precio, descripcion) VALUES (%s, %s, %s, %s)',
             (form.nombre.data, form.velocidad.data, form.precio.data, form.descripcion.data)
         )
         conn.commit()
+        cursor.close()
         conn.close()
         return redirect(url_for('productos'))
     return render_template('formulario_producto.html', form=form)
+
+
+@app.route('/productos/editar/<int:id_producto>', methods=['GET', 'POST'])
+def editar_producto(id_producto):
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    form = ProductoForm()
+    if form.validate_on_submit():
+        cursor.execute(
+            'UPDATE productos SET nombre = %s, velocidad = %s, precio = %s, descripcion = %s WHERE id_producto = %s',
+            (form.nombre.data, form.velocidad.data, form.precio.data, form.descripcion.data, id_producto)
+        )
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return redirect(url_for('productos'))
+
+    if request.method == 'GET':
+        cursor.execute('SELECT nombre, velocidad, precio, descripcion FROM productos WHERE id_producto = %s', (id_producto,))
+        producto = cursor.fetchone()
+        if producto:
+            form.nombre.data = producto[0]
+            form.velocidad.data = producto[1]
+            form.precio.data = producto[2]
+            form.descripcion.data = producto[3]
+
+    cursor.close()
+    conn.close()
+    return render_template('formulario_producto.html', form=form)
+
+
+@app.route('/productos/eliminar/<int:id_producto>')
+def eliminar_producto(id_producto):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute('DELETE FROM productos WHERE id_producto = %s', (id_producto,))
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return redirect(url_for('productos'))
 
 
 @app.route('/clientes')

@@ -14,7 +14,7 @@
                 {% for factura in facturas %}
                 <tr>
                     <td>{{ factura.numero }}</td>
-                    <td>{{ factura.cliente }}</td>
+                    <td>{{ factura.cliente_nombre }}</td>
                     <td>{{ factura.monto }}</td>
                     <td>
                         {% if factura.estado == 'Pagada' %}

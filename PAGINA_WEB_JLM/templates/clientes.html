@@ -15,7 +15,7 @@
             <tbody>
                 {% for cliente in clientes %}
                 <tr>
-                    <td>{{ cliente.id }}</td>
+                    <td>{{ cliente.id_cliente }}</td>
                     <td>{{ cliente.nombre | title }}</td>
                     <td>{{ cliente.sector }}</td>
                     <td><span class="badge bg-info text-dark">{{ cliente.plan }}</span></td>

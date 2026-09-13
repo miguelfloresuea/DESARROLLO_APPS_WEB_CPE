@@ -12,13 +12,15 @@
             <div class="text-danger small">{{ error }}</div>
             {% endfor %}
         </div>
+
         <div class="mb-3">
-            {{ form.cliente.label(class="form-label") }}
-            {{ form.cliente(class="form-control") }}
-            {% for error in form.cliente.errors %}
-            <div class="text-danger small">{{ error }}</div>
-            {% endfor %}
+    {{ form.id_cliente.label(class="form-label") }}
+    {{ form.id_cliente(class="form-select") }}
+    {% for error in form.id_cliente.errors %}
+    <div class="text-danger small">{{ error }}</div>
+    {% endfor %}
         </div>
+
         <div class="mb-3">
             {{ form.monto.label(class="form-label") }}
             {{ form.monto(class="form-control") }}

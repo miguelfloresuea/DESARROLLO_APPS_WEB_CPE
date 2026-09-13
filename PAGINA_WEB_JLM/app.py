@@ -4,6 +4,7 @@ from forms.cliente_form import ClienteForm
 from forms.proveedor_form import ProveedorForm
 from forms.facturacion_form import FacturacionForm
 from conexion.conexion import get_connection
+from psycopg2.extras import RealDictCursor
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'jlmconnect360-clave-secreta-2026'
@@ -113,29 +114,77 @@ def eliminar_producto(id_producto):
 
 @app.route('/clientes')
 def clientes_route():
-    return render_template('clientes.html', clientes=clientes)
+    conn = get_connection()
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
+    cursor.execute('SELECT * FROM clientes')
+    clientes_db = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return render_template('clientes.html', clientes=clientes_db)
 
 
 @app.route('/clientes/nuevo', methods=['GET', 'POST'])
 def nuevo_cliente():
     form = ClienteForm()
     if form.validate_on_submit():
-        nuevo_id = len(clientes) + 1
-        clientes.append({
-            "id": nuevo_id,
-            "nombre": form.nombre.data,
-            "sector": form.sector.data,
-            "plan": form.plan.data,
-            "estado": form.estado.data
-        })
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            'INSERT INTO clientes (nombre, sector, plan, estado) VALUES (%s, %s, %s, %s)',
+            (form.nombre.data, form.sector.data, form.plan.data, form.estado.data)
+        )
+        conn.commit()
+        cursor.close()
+        conn.close()
         return redirect(url_for('clientes_route'))
     return render_template('formulario_cliente.html', form=form)
+
+
+@app.route('/facturacion')
+def facturacion():
+    conn = get_connection()
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
+    cursor.execute('''
+        SELECT facturas.id_factura, facturas.numero, facturas.monto, facturas.estado,
+               clientes.nombre AS cliente_nombre
+        FROM facturas
+        JOIN clientes ON facturas.id_cliente = clientes.id_cliente
+    ''')
+    facturas_db = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return render_template('facturacion.html', facturas=facturas_db)
+
+
+@app.route('/facturacion/nueva', methods=['GET', 'POST'])
+def nueva_factura():
+    conn = get_connection()
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
+    cursor.execute('SELECT id_cliente, nombre FROM clientes')
+    clientes_db = cursor.fetchall()
+    cursor.close()
+
+    form = FacturacionForm()
+    form.id_cliente.choices = [(c['id_cliente'], c['nombre']) for c in clientes_db]
+
+    if form.validate_on_submit():
+        cursor = conn.cursor()
+        cursor.execute(
+            'INSERT INTO facturas (numero, id_cliente, monto, estado) VALUES (%s, %s, %s, %s)',
+            (form.numero.data, form.id_cliente.data, form.monto.data, form.estado.data)
+        )
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return redirect(url_for('facturacion'))
+
+    conn.close()
+    return render_template('formulario_facturacion.html', form=form)
 
 
 @app.route('/proveedores')
 def proveedores_route():
     return render_template('proveedores.html', proveedores=proveedores)
-
 
 @app.route('/proveedores/nuevo', methods=['GET', 'POST'])
 def nuevo_proveedor():
@@ -150,26 +199,6 @@ def nuevo_proveedor():
         })
         return redirect(url_for('proveedores_route'))
     return render_template('formulario_proveedor.html', form=form)
-
-
-@app.route('/facturacion')
-def facturacion():
-    return render_template('facturacion.html', facturas=facturas)
-
-
-@app.route('/facturacion/nueva', methods=['GET', 'POST'])
-def nueva_factura():
-    form = FacturacionForm()
-    if form.validate_on_submit():
-        facturas.append({
-            "numero": form.numero.data,
-            "cliente": form.cliente.data,
-            "monto": form.monto.data,
-            "estado": form.estado.data
-        })
-        return redirect(url_for('facturacion'))
-    return render_template('formulario_facturacion.html', form=form)
-
 
 @app.route('/contacto', methods=['POST'])
 def procesar_contacto():

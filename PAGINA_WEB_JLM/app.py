@@ -182,23 +182,75 @@ def nueva_factura():
     return render_template('formulario_facturacion.html', form=form)
 
 
+# ===================== PROVEEDORES =====================
+
 @app.route('/proveedores')
 def proveedores_route():
-    return render_template('proveedores.html', proveedores=proveedores)
+    conn = get_connection()
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
+    cursor.execute('SELECT id_proveedor, nombre, producto, contacto FROM proveedores')
+    proveedores_db = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return render_template('proveedores.html', proveedores=proveedores_db)
+
 
 @app.route('/proveedores/nuevo', methods=['GET', 'POST'])
 def nuevo_proveedor():
     form = ProveedorForm()
     if form.validate_on_submit():
-        nuevo_id = len(proveedores) + 1
-        proveedores.append({
-            "id": nuevo_id,
-            "nombre": form.nombre.data,
-            "producto": form.producto.data,
-            "contacto": form.contacto.data
-        })
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            'INSERT INTO proveedores (nombre, producto, contacto) VALUES (%s, %s, %s)',
+            (form.nombre.data, form.producto.data, form.contacto.data)
+        )
+        conn.commit()
+        cursor.close()
+        conn.close()
         return redirect(url_for('proveedores_route'))
     return render_template('formulario_proveedor.html', form=form)
+
+
+@app.route('/proveedores/editar/<int:id_proveedor>', methods=['GET', 'POST'])
+def editar_proveedor(id_proveedor):
+    conn = get_connection()
+    cursor = conn.cursor()
+    
+    form = ProveedorForm()
+    if form.validate_on_submit():
+        cursor.execute(
+            'UPDATE proveedores SET nombre = %s, producto = %s, contacto = %s WHERE id_proveedor = %s',
+            (form.nombre.data, form.producto.data, form.contacto.data, id_proveedor)
+        )
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return redirect(url_for('proveedores_route'))
+    
+    if request.method == 'GET':
+        cursor.execute('SELECT nombre, producto, contacto FROM proveedores WHERE id_proveedor = %s', (id_proveedor,))
+        proveedor = cursor.fetchone()
+        if proveedor:
+            form.nombre.data = proveedor[0]
+            form.producto.data = proveedor[1]
+            form.contacto.data = proveedor[2]
+    
+    cursor.close()
+    conn.close()
+    return render_template('formulario_proveedor.html', form=form, editar=True)
+
+
+@app.route('/proveedores/eliminar/<int:id_proveedor>')
+def eliminar_proveedor(id_proveedor):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute('DELETE FROM proveedores WHERE id_proveedor = %s', (id_proveedor,))
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return redirect(url_for('proveedores_route'))
+
 
 @app.route('/contacto', methods=['POST'])
 def procesar_contacto():

@@ -4,29 +4,46 @@
 
 <section class="mb-5 p-4 section-custom">
     <h2 class="text-center mb-2">Proveedores</h2>
-    <p class="text-center text-muted mb-4">Empresas que suministran equipos e insumos para la red.</p>
+    <p class="text-center text-muted mb-4">Empresas que suministran equipos e insumos para nuestros servicios</p>
 
-```
-<p class="text-center">
-    <a href="{{ url_for('nuevo_proveedor') }}" class="btn btn-outline-primary">+ Registrar nuevo proveedor</a>
-</p>
+    <p class="text-center">
+        <a href="{{ url_for('nuevo_proveedor') }}" class="btn btn-outline-primary">+ Registrar Proveedor</a>
+    </p>
 
-<div class="table-responsive">
-    <table class="table table-hover align-middle">
-        <thead><tr><th>#</th><th>Proveedor</th><th>Producto / Servicio</th><th>Contacto</th></tr></thead>
-        <tbody>
-            {% for proveedor in proveedores %}
-            <tr>
-                <td>{{ proveedor.id }}</td>
-                <td>{{ proveedor.nombre }}</td>
-                <td>{{ proveedor.producto }}</td>
-                <td><a href="mailto:{{ proveedor.contacto }}">{{ proveedor.contacto }}</a></td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-```
-
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Nombre</th>
+                    <th>Producto / Servicio</th>
+                    <th>Contacto</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for proveedor in proveedores %}
+                <tr>
+                    <td>{{ proveedor.id_proveedor }}</td>
+                    <td>{{ proveedor.nombre }}</td>
+                    <td>{{ proveedor.producto }}</td>
+                    <td><a href="mailto:{{ proveedor.contacto }}">{{ proveedor.contacto }}</a></td>
+                    <td>
+                        <a href="{{ url_for('editar_proveedor', id_proveedor=proveedor.id_proveedor) }}" 
+                           class="btn btn-warning btn-sm" style="margin-right: 5px;">
+                           Editar
+                        </a>
+                        <a href="{{ url_for('eliminar_proveedor', id_proveedor=proveedor.id_proveedor) }}" 
+                           class="btn btn-danger btn-sm"
+                           onclick="return confirm('¿Estás seguro de eliminar este proveedor?');">
+                           Eliminar
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </section>
+
 {% endblock %}

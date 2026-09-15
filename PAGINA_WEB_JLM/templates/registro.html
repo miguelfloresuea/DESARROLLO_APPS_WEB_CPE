@@ -1,0 +1,248 @@
+{% extends "base.html" %}
+{% block title %}Registro - JLM Connect 360{% endblock %}
+
+{% block content %}
+<section class="mb-5">
+    <h2 class="text-center mb-4">Crear Cuenta Nueva</h2>
+    
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow">
+                <div class="card-body p-4">
+                    <form method="POST">
+                        {{ form.hidden_tag() }}
+                        
+                        <!-- Campo Usuario -->
+                        <div class="mb-3">
+                            {{ form.usuario.label(class="form-label") }}
+                            {{ form.usuario(class="form-control", id="usuario", placeholder="Ej: jessica") }}
+                            
+                            <!-- Requisitos de usuario -->
+                            <div class="d-none mt-2" id="usuario-requirements">
+                                <ul class="list-unstyled mb-0" style="font-size: 0.85rem;">
+                                    <li class="text-danger" id="req-usuario-length">
+                                        <i class="bi bi-x-circle"></i> Mínimo 3 caracteres
+                                    </li>
+                                    <li class="text-danger" id="req-usuario-chars">
+                                        <i class="bi bi-x-circle"></i> Solo letras y números (sin espacios)
+                                    </li>
+                                </ul>
+                                <small class="text-primary mt-1 d-block">
+                                    <i class="bi bi-lightbulb"></i> <strong>Ejemplo:</strong> jessica, miguel123, lis_f
+                                </small>
+                            </div>
+                            
+                            {% if form.usuario.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.usuario.errors %}
+                                        <span><i class="bi bi-exclamation-circle"></i> {{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Campo Contraseña -->
+                        <div class="mb-3">
+                            {{ form.password.label(class="form-label") }}
+                            {{ form.password(class="form-control", id="password", placeholder="Ej: Samanta1!") }}
+                            
+                            <!-- Requisitos de contraseña -->
+                            <div class="d-none mt-2" id="password-requirements">
+                                <small class="text-muted d-block">
+                                    <strong>Requisitos:</strong>
+                                </small>
+                                <ul class="list-unstyled mb-0" style="font-size: 0.85rem;">
+                                    <li class="text-danger" id="req-length">
+                                        <i class="bi bi-x-circle"></i> Mínimo 6 caracteres
+                                    </li>
+                                    <li class="text-danger" id="req-uppercase">
+                                        <i class="bi bi-x-circle"></i> 1 letra mayúscula (A-Z)
+                                    </li>
+                                    <li class="text-danger" id="req-lowercase">
+                                        <i class="bi bi-x-circle"></i> 1 letra minúscula (a-z)
+                                    </li>
+                                    <li class="text-danger" id="req-number">
+                                        <i class="bi bi-x-circle"></i> 1 número (0-9)
+                                    </li>
+                                    <li class="text-danger" id="req-symbol">
+                                        <i class="bi bi-x-circle"></i> 1 símbolo (!@#$%^&*)
+                                    </li>
+                                </ul>
+                                <small class="text-primary mt-1 d-block">
+                                    <i class="bi bi-lightbulb"></i> <strong>Ejemplo:</strong> Samanta1! o Jlm2026@
+                                </small>
+                            </div>
+                            
+                            {% if form.password.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.password.errors %}
+                                        <span><i class="bi bi-exclamation-circle"></i> {{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-grid">
+                            {{ form.submit(class="btn btn-success") }}
+                        </div>
+                    </form>
+                    
+                    <hr class="my-4">
+                    
+                    <p class="text-center mb-0">
+                        ¿Ya tienes cuenta? 
+                        <a href="{{ url_for('login') }}" class="text-decoration-none">
+                            <strong>Inicia sesión aquí</strong>
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- JavaScript para validación en tiempo real de AMBOS campos -->
+<script>
+    // ====== VALIDACIÓN DE USUARIO ======
+    const usuarioInput = document.getElementById('usuario');
+    const usuarioRequirements = document.getElementById('usuario-requirements');
+    const reqUsuarioLength = document.getElementById('req-usuario-length');
+    const reqUsuarioChars = document.getElementById('req-usuario-chars');
+    
+    // Mostrar requisitos de usuario al hacer focus
+    usuarioInput.addEventListener('focus', function() {
+        usuarioRequirements.classList.remove('d-none');
+    });
+    
+    // Validar usuario en tiempo real
+    usuarioInput.addEventListener('input', function() {
+        const usuario = this.value;
+        
+        // Longitud (mínimo 3 caracteres)
+        if (usuario.length >= 3) {
+            reqUsuarioLength.innerHTML = '<i class="bi bi-check-circle text-success"></i> Mínimo 3 caracteres';
+            reqUsuarioLength.classList.remove('text-danger');
+            reqUsuarioLength.classList.add('text-success');
+        } else {
+            reqUsuarioLength.innerHTML = '<i class="bi bi-x-circle"></i> Mínimo 3 caracteres';
+            reqUsuarioLength.classList.remove('text-success');
+            reqUsuarioLength.classList.add('text-danger');
+        }
+        
+        // Caracteres válidos (solo letras y números, sin espacios)
+        if (/^[a-zA-Z0-9_]+$/.test(usuario) && usuario.length > 0) {
+            reqUsuarioChars.innerHTML = '<i class="bi bi-check-circle text-success"></i> Solo letras y números (sin espacios)';
+            reqUsuarioChars.classList.remove('text-danger');
+            reqUsuarioChars.classList.add('text-success');
+        } else if (usuario.length === 0) {
+            reqUsuarioChars.innerHTML = '<i class="bi bi-x-circle"></i> Solo letras y números (sin espacios)';
+            reqUsuarioChars.classList.remove('text-success');
+            reqUsuarioChars.classList.add('text-danger');
+        } else {
+            reqUsuarioChars.innerHTML = '<i class="bi bi-x-circle"></i> Solo letras y números (sin espacios)';
+            reqUsuarioChars.classList.remove('text-success');
+            reqUsuarioChars.classList.add('text-danger');
+        }
+    });
+    
+    // Ocultar requisitos de usuario al perder focus (si está vacío)
+    usuarioInput.addEventListener('blur', function() {
+        if (this.value === '') {
+            usuarioRequirements.classList.add('d-none');
+            // Resetear a rojo
+            reqUsuarioLength.classList.remove('text-success');
+            reqUsuarioLength.classList.add('text-danger');
+            reqUsuarioChars.classList.remove('text-success');
+            reqUsuarioChars.classList.add('text-danger');
+        }
+    });
+    
+    // ====== VALIDACIÓN DE CONTRASEÑA ======
+    const passwordInput = document.getElementById('password');
+    const passwordRequirements = document.getElementById('password-requirements');
+    
+    // Elementos de requisitos de contraseña
+    const reqLength = document.getElementById('req-length');
+    const reqUppercase = document.getElementById('req-uppercase');
+    const reqLowercase = document.getElementById('req-lowercase');
+    const reqNumber = document.getElementById('req-number');
+    const reqSymbol = document.getElementById('req-symbol');
+    
+    // Mostrar requisitos de contraseña al hacer focus
+    passwordInput.addEventListener('focus', function() {
+        passwordRequirements.classList.remove('d-none');
+    });
+    
+    // Validar contraseña en tiempo real
+    passwordInput.addEventListener('input', function() {
+        const password = this.value;
+        
+        // Longitud
+        if (password.length >= 6) {
+            reqLength.innerHTML = '<i class="bi bi-check-circle text-success"></i> Mínimo 6 caracteres';
+            reqLength.classList.remove('text-danger');
+            reqLength.classList.add('text-success');
+        } else {
+            reqLength.innerHTML = '<i class="bi bi-x-circle"></i> Mínimo 6 caracteres';
+            reqLength.classList.remove('text-success');
+            reqLength.classList.add('text-danger');
+        }
+        
+        // Mayúscula
+        if (/[A-Z]/.test(password)) {
+            reqUppercase.innerHTML = '<i class="bi bi-check-circle text-success"></i> 1 letra mayúscula (A-Z)';
+            reqUppercase.classList.remove('text-danger');
+            reqUppercase.classList.add('text-success');
+        } else {
+            reqUppercase.innerHTML = '<i class="bi bi-x-circle"></i> 1 letra mayúscula (A-Z)';
+            reqUppercase.classList.remove('text-success');
+            reqUppercase.classList.add('text-danger');
+        }
+        
+        // Minúscula
+        if (/[a-z]/.test(password)) {
+            reqLowercase.innerHTML = '<i class="bi bi-check-circle text-success"></i> 1 letra minúscula (a-z)';
+            reqLowercase.classList.remove('text-danger');
+            reqLowercase.classList.add('text-success');
+        } else {
+            reqLowercase.innerHTML = '<i class="bi bi-x-circle"></i> 1 letra minúscula (a-z)';
+            reqLowercase.classList.remove('text-success');
+            reqLowercase.classList.add('text-danger');
+        }
+        
+        // Número
+        if (/\d/.test(password)) {
+            reqNumber.innerHTML = '<i class="bi bi-check-circle text-success"></i> 1 número (0-9)';
+            reqNumber.classList.remove('text-danger');
+            reqNumber.classList.add('text-success');
+        } else {
+            reqNumber.innerHTML = '<i class="bi bi-x-circle"></i> 1 número (0-9)';
+            reqNumber.classList.remove('text-success');
+            reqNumber.classList.add('text-danger');
+        }
+        
+        // Símbolo
+        if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+            reqSymbol.innerHTML = '<i class="bi bi-check-circle text-success"></i> 1 símbolo (!@#$%^&*)';
+            reqSymbol.classList.remove('text-danger');
+            reqSymbol.classList.add('text-success');
+        } else {
+            reqSymbol.innerHTML = '<i class="bi bi-x-circle"></i> 1 símbolo (!@#$%^&*)';
+            reqSymbol.classList.remove('text-success');
+            reqSymbol.classList.add('text-danger');
+        }
+    });
+    
+    // Ocultar requisitos de contraseña al perder focus (si está vacío)
+    passwordInput.addEventListener('blur', function() {
+        if (this.value === '') {
+            passwordRequirements.classList.add('d-none');
+            // Resetear a rojo
+            [reqLength, reqUppercase, reqLowercase, reqNumber, reqSymbol].forEach(el => {
+                el.classList.remove('text-success');
+                el.classList.add('text-danger');
+            });
+        }
+    });
+</script>
+{% endblock %}

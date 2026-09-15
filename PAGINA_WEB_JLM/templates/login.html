@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}Iniciar Sesión - JLM Connect 360{% endblock %}
+
+{% block content %}
+<section class="mb-5">
+    <h2 class="text-center mb-4">Iniciar Sesión</h2>
+    
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow">
+                <div class="card-body p-4">
+                    
+                    <!-- MENSAJES FLASH (éxito del registro) -->
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                    {% if category == 'success' %}
+                                        ✅ {{ message }}
+                                    {% elif category == 'danger' %}
+                                        ❌ {{ message }}
+                                    {% else %}
+                                        ℹ️ {{ message }}
+                                    {% endif %}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                    
+                    <!-- MENSAJE DE ERROR (credenciales incorrectas) -->
+                    {% if error %}
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        ❌ {{ error }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    {% endif %}
+                    
+                    <form method="POST">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="mb-3">
+                            {{ form.usuario.label(class="form-label") }}
+                            {{ form.usuario(class="form-control", placeholder="Ingrese su usuario") }}
+                            {% if form.usuario.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.usuario.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.password.label(class="form-label") }}
+                            {{ form.password(class="form-control", placeholder="Ingrese su contraseña") }}
+                            {% if form.password.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.password.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-grid">
+                            {{ form.submit(class="btn btn-primary") }}
+                        </div>
+                    </form>
+                    
+                    <hr class="my-4">
+                    
+                    <p class="text-center mb-0">
+                        ¿No tienes cuenta? 
+                        <a href="{{ url_for('registro') }}" class="text-decoration-none">
+                            <strong>Regístrate aquí</strong>
+                        </a>
+                    </p>
+                    
+                    <div class="text-center mt-3">
+                        <a href="{{ url_for('inicio') }}" class="btn btn-outline-secondary btn-sm">
+                            🏠 Volver al Inicio
+                        </a>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

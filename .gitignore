@@ -1,2 +1,21 @@
-venv/ __pycache__/ *.pyc
-conexion/config_local.py 
+# Entorno virtual
+.venv/
+venv/
+
+# Archivos compilados de Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Archivos de configuración con contraseñas
+conexion/config_local.py
+PAGINA_WEB_JLM/conexion/config_local.py
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/

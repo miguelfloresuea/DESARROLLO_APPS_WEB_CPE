@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Mensaje Enviado - JLM Connect 360{% endblock %}
+
+{% block content %}
+<section class="mb-5 p-4 section-custom text-center">
+    <h2 class="mb-3">¡Gracias por escribirnos, {{ nombre }}!</h2>
+    <p class="fs-5">Hemos recibido tu mensaje correctamente.</p>
+    <div class="text-start col-md-6 mx-auto mt-4">
+        <p><strong>Correo:</strong> {{ email }}</p>
+        <p><strong>Asunto:</strong> {{ asunto }}</p>
+        <p><strong>Mensaje:</strong> {{ mensaje }}</p>
+    </div>
+    <a href="{{ url_for('inicio') }}" class="btn btn-primary custom-btn mt-3">Volver al inicio</a>
+</section>
+{% endblock %}

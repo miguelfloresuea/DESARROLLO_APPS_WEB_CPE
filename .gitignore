@@ -1,6 +1,7 @@
 # Entorno virtual
 .venv/
 venv/
+ENV/
 
 # Archivos compilados de Python
 __pycache__/
@@ -8,14 +9,23 @@ __pycache__/
 *.pyo
 *.pyd
 
-# Archivos de configuración con contraseñas
+# Archivos de configuración con contraseñas (NUNCA subir)
 conexion/config_local.py
 PAGINA_WEB_JLM/conexion/config_local.py
+config_local.py
 
 # Archivos de sistema
 .DS_Store
 Thumbs.db
+desktop.ini
 
 # IDE
 .vscode/
 .idea/
+
+# Logs
+*.log
+
+# Bases de datos locales
+*.db
+data/*.db

@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Nuevo Cliente - JLM Connect 360{% endblock %}
+{% block content %}
+<section class="mb-5 p-4 section-custom">
+    <h2 class="text-center mb-4">Registrar Nuevo Cliente</h2>
+    <form method="POST" class="col-md-6 mx-auto">
+        {{ form.hidden_tag() }}
+        <div class="mb-3">
+            {{ form.nombre.label(class="form-label") }}
+            {{ form.nombre(class="form-control") }}
+            {% for error in form.nombre.errors %}
+            <div class="text-danger small">{{ error }}</div>
+            {% endfor %}
+        </div>
+        <div class="mb-3">
+            {{ form.sector.label(class="form-label") }}
+            {{ form.sector(class="form-control") }}
+            {% for error in form.sector.errors %}
+            <div class="text-danger small">{{ error }}</div>
+            {% endfor %}
+        </div>
+        <div class="mb-3">
+            {{ form.plan.label(class="form-label") }}
+            {{ form.plan(class="form-select") }}
+            {% for error in form.plan.errors %}
+            <div class="text-danger small">{{ error }}</div>
+            {% endfor %}
+        </div>
+        <div class="mb-3">
+            {{ form.estado.label(class="form-label") }}
+            {{ form.estado(class="form-select") }}
+            {% for error in form.estado.errors %}
+            <div class="text-danger small">{{ error }}</div>
+            {% endfor %}
+        </div>
+        {{ form.submit(class="btn btn-primary custom-btn") }}
+    </form>
+</section>
+{% endblock %}

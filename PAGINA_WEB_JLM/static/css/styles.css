@@ -1,0 +1,127 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
+
+body {
+    font-family: 'Roboto', Arial, sans-serif;
+    margin: 0;
+    background-color: #f4f6f9;
+    color: #233e63;
+    line-height: 1.6;
+}
+
+header, footer {
+    background: linear-gradient(135deg, #0f4c81 0%, #1c4978 100%);
+    color: white;
+}
+
+.banner {
+    width: 100%;
+    height: 350px;
+    background-image: url('../img/fondobanner.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-bottom: 5px solid #e7e9ef;
+}
+
+.custom-btn {
+    background-color: #1c4978;
+    border: none;
+    border-radius: 25px;
+    box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    color: white;
+    font-weight: 700;
+}
+
+.custom-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 4px 6px 15px rgba(0, 0, 0, 0.4);
+    color: #fff;
+    background-color: #16395f;
+}
+
+.custom-card {
+    background-color: #1c4978;
+    border-radius: 15px;
+    border: none;
+    color: #ffffff;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.custom-card .card-title {
+    color: #a9d6e5 !important;
+    font-weight: 700;
+}
+
+.custom-card .card-text {
+    color: #ffffff;
+}
+
+.custom-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25);
+}
+
+.custom-card .btn {
+    font-weight: 700;
+    letter-spacing: 0.3px;
+}
+
+.custom-card .btn-light {
+    color: #1c4978;
+}
+
+.custom-card .btn-danger {
+    color: #ffffff;
+}
+
+.section-custom {
+    background-color: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.custom-img {
+    border: 3px solid #ededee;
+    transition: transform 0.4s ease;
+    max-width: 100%;
+    height: auto;
+}
+
+.custom-img:hover {
+    transform: scale(1.02);
+}
+
+.texto-quienes-somos p {
+    margin-bottom: 1rem;
+    line-height: 1.8;
+    text-align: justify;
+}
+
+.video-box {
+    max-width: 800px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.custom-aside {
+    background-color: #1c4978;
+}
+
+form .form-control {
+    border-radius: 10px;
+}
+
+/* Estilo para los registros creados con JS */
+#lista-solicitudes .list-group-item {
+    border-left: 4px solid #1c4978;
+}
+
+@media (max-width: 768px) {
+    .banner { height: 180px; }
+    header h1 { font-size: 24px; }
+    .custom-aside h3 { font-size: 20px; }
+    .row > .col-md-6 { margin-bottom: 20px; }
+    .texto-quienes-somos p { text-align: left; }
+    #lista-solicitudes .d-flex { flex-direction: column; align-items: flex-start !important; }
+    #lista-solicitudes .btn { margin-top: 8px; }
+}

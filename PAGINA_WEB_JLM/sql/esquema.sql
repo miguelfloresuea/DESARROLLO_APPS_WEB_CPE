@@ -59,3 +59,32 @@ INSERT INTO facturas (numero, id_cliente, monto, estado) VALUES
 ('F001-000123', 1, '$18.00', 'Pagada'),
 ('F001-000124', 2, '$45.00', 'Pendiente'),
 ('F001-000125', 3, '$12.00', 'Pagada');
+
+-- ===================== SISTEMA DE LOGIN  =====================
+
+-- Tabla de usuarios: cuentas para iniciar sesión en el sistema
+CREATE TABLE IF NOT EXISTS usuarios (
+    id SERIAL PRIMARY KEY,
+    usuario VARCHAR(50) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL
+);
+
+-- ===================== RELACIONES ADICIONALES (núcleo: facturas) =====================
+
+-- Cada producto pertenece a un proveedor
+ALTER TABLE productos
+ADD COLUMN IF NOT EXISTS id_proveedor INTEGER REFERENCES proveedores(id_proveedor);
+
+-- Cada factura fue registrada por un usuario del sistema
+ALTER TABLE facturas
+ADD COLUMN IF NOT EXISTS id_usuario INTEGER REFERENCES usuarios(id);
+
+-- Detalle de cada factura: qué productos incluye
+CREATE TABLE IF NOT EXISTS detalle_factura (
+    id_detalle SERIAL PRIMARY KEY,
+    id_factura INTEGER REFERENCES facturas(id_factura),
+    id_producto INTEGER REFERENCES productos(id_producto),
+    cantidad INTEGER NOT NULL,
+    precio_unitario NUMERIC(10,2) NOT NULL,
+    subtotal NUMERIC(10,2) NOT NULL
+);

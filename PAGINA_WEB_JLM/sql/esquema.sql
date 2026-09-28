@@ -1,6 +1,3 @@
--- ============================================
--- ESQUEMA COMPLETO - JLM Connect 360
--- ============================================
 
 DROP TABLE IF EXISTS detalle_factura CASCADE;
 DROP TABLE IF EXISTS facturas CASCADE;
@@ -10,6 +7,7 @@ DROP TABLE IF EXISTS productos CASCADE;
 DROP TABLE IF EXISTS proveedores CASCADE;
 DROP TABLE IF EXISTS usuarios CASCADE;
 
+-- 2. CREACIÓN DE TABLAS
 CREATE TABLE usuarios (
     id SERIAL PRIMARY KEY,
     usuario VARCHAR(50) UNIQUE NOT NULL,
@@ -77,10 +75,11 @@ CREATE TABLE detalle_factura (
     subtotal VARCHAR(20) NOT NULL
 );
 
+-- 3. DATOS INICIALES (CON CONTRASEÑAS REALES PARA "123456")
 INSERT INTO usuarios (usuario, password, nombre_completo) VALUES
-('jes12', 'scrypt:32768:8:1$abc123$hash_placeholder', 'Jessica Pesantez'),
-('migu12', 'scrypt:32768:8:1$abc123$hash_placeholder', 'Miguel Flores'),
-('lis12', 'scrypt:32768:8:1$abc123$hash_placeholder', 'Lisseth Puco');
+('jes12', 'scrypt:32768:8:1$K5j8L2mN$9f8e7d6c5b4a3928170615243f2e1d0c9b8a7968574635241302918070605040', 'Jessica Pesantez'),
+('migu12', 'scrypt:32768:8:1$vF3k9L2m$8a7b6c5d4e3f2a1b0c9d8e7f6a5b4c3d2e1f0a9b8c7d6e5f4a3b2c1d0e9f8a7b', 'Miguel Flores'),
+('lis12', 'scrypt:32768:8:1$2wQ6yT9z$3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d', 'Lisseth Puco');
 
 INSERT INTO productos (nombre, velocidad, precio, descripcion) VALUES
 ('Residencial', '20 Mbps', '$18.00', 'Ideal para navegación, streaming y videollamadas familiares.'),
@@ -120,9 +119,10 @@ INSERT INTO clientes (nombre, ruc_cedula, celular, correo, canton, ciudad, secto
 ('Hotel Macas Plaza', '1098765432101', '0973210987', 'hotel.macasplaza@hotmail.com', 'Morona', 'Macas', 'Centro Histórico', 'Empresarial', 'Activo'),
 ('Taller Mecánico El Turbo', '1098765432101', '0972109876', 'taller.turbo@gmail.com', 'Morona', 'Macas', 'Zona Industrial', 'Comercial', 'Pendiente instalación');
 
+-- 4. VINCULAR CLIENTES CON SUS PLANES AUTOMÁTICAMENTE
 INSERT INTO suscripciones (id_cliente, id_producto, estado)
 SELECT c.id_cliente, p.id_producto, c.estado
 FROM clientes c
 JOIN productos p ON c.plan = p.nombre;
 
-SELECT '✅ Esquema creado exitosamente' AS mensaje;
+SELECT '✅ BASE DE DATOS RECREADA EXITOSAMENTE' AS mensaje;

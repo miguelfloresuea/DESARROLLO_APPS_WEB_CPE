@@ -1,6 +1,6 @@
 import os
 from io import BytesIO
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from flask import make_response, flash, request
 from xhtml2pdf import pisa
 from flask import Flask, render_template, redirect, url_for
@@ -567,7 +567,10 @@ def factura_pdf(id_factura):
     ''', (id_factura,))
     detalle = cursor.fetchall()
     
-    fecha = factura['fecha_creacion'] if factura['fecha_creacion'] else datetime.now()
+    # Ajuste de hora UTC a hora local de Ecuador (UTC-5)
+    fecha_utc = factura['fecha_creacion'] if factura['fecha_creacion'] else datetime.now()
+    fecha = fecha_utc - timedelta(hours=5)
+
     periodo = f"{MESES_ESP[fecha.month]} {fecha.year}"
     fecha_emision = fecha.strftime('%d/%m/%Y')
     fecha_autorizacion = fecha.strftime('%d/%m/%Y %H:%M:%S')
@@ -587,7 +590,6 @@ def factura_pdf(id_factura):
             if item.get('descripcion'):
                 descripcion += f" ({item['descripcion']})"
             
-            # Asignamos el valor neto (sin IVA) directamente al ítem
             detalle_preparado.append({
                 'descripcion_completa': descripcion,
                 'cantidad': item['cantidad'],
@@ -640,7 +642,6 @@ def factura_pdf(id_factura):
             c.translate(page_width / 2, page_height / 2)
             c.rotate(-35)
             
-            # SOLO el texto ANULADA, sin rectángulo
             c.setFillColor(red)
             c.setFont("Helvetica-Bold", 90)
             c.setFillAlpha(0.4)

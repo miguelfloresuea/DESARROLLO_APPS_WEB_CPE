@@ -2,15 +2,17 @@ import os
 import psycopg2
 
 def get_connection():
+    # Render le enviará la URL de la base de datos automáticamente
     database_url = os.environ.get('DATABASE_URL')
+    
     if database_url:
-        return psycopg2.connect(database_url, sslmode='require')
+        # Si está en Render, usa la base de datos de la nube
+        return psycopg2.connect(database_url)
     else:
-        from conexion.config_local import HOST, USER, PASSWORD, DATABASE, PORT
+        # Si estás en tu laptop, usa tu base de datos local
         return psycopg2.connect(
-            host=HOST,
-            port=PORT,
-            dbname=DATABASE,
-            user=USER,
-            password=PASSWORD
+            host='localhost',
+            database='jlmconnect',
+            user='postgres',
+            password='Angel1990P' # Pon tu contraseña de tu PostgreSQL local
         )

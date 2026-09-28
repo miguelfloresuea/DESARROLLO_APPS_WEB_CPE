@@ -12,9 +12,22 @@
                     <form method="POST">
                         {{ form.hidden_tag() }}
                         
+                        <!-- Campo Nombre Completo (Faltaba) -->
+                        <div class="mb-3">
+                            {{ form.nombre_completo.label(class="form-label fw-bold") }}
+                            {{ form.nombre_completo(class="form-control", placeholder="Ej: Jessica Perez") }}
+                            {% if form.nombre_completo.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.nombre_completo.errors %}
+                                        <span><i class="bi bi-exclamation-circle"></i> {{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
                         <!-- Campo Usuario -->
                         <div class="mb-3">
-                            {{ form.usuario.label(class="form-label") }}
+                            {{ form.usuario.label(class="form-label fw-bold") }}
                             {{ form.usuario(class="form-control", id="usuario", placeholder="Ej: jessica") }}
                             
                             <!-- Requisitos de usuario -->
@@ -43,7 +56,7 @@
                         
                         <!-- Campo Contraseña -->
                         <div class="mb-3">
-                            {{ form.password.label(class="form-label") }}
+                            {{ form.password.label(class="form-label fw-bold") }}
                             {{ form.password(class="form-control", id="password", placeholder="Ej: Samanta1!") }}
                             
                             <!-- Requisitos de contraseña -->
@@ -81,9 +94,22 @@
                                 </div>
                             {% endif %}
                         </div>
+
+                        <!-- Campo Confirmar Contraseña (Faltaba) -->
+                        <div class="mb-3">
+                            {{ form.confirmar_password.label(class="form-label fw-bold") }}
+                            {{ form.confirmar_password(class="form-control", placeholder="Repite tu contraseña") }}
+                            {% if form.confirmar_password.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.confirmar_password.errors %}
+                                        <span><i class="bi bi-exclamation-circle"></i> {{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
                         
-                        <div class="d-grid">
-                            {{ form.submit(class="btn btn-success") }}
+                        <div class="d-grid mt-4">
+                            {{ form.submit(class="btn btn-success fw-bold") }}
                         </div>
                     </form>
                     

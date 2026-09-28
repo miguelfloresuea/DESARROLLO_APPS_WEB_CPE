@@ -317,13 +317,17 @@ def facturacion():
     plan = request.args.get('plan', '')
     conn = get_connection()
     cursor = conn.cursor(cursor_factory=RealDictCursor)
+    
     query = '''
         SELECT f.id_factura, f.numero, f.monto, f.estado, f.forma_pago, 
                f.comprobante_pago, f.fecha_creacion,
-               c.nombre AS cliente_nombre, c.id_cliente, c.plan AS cliente_plan,
+               c.nombre AS cliente_nombre, c.id_cliente, 
+               COALESCE(p.nombre, 'Sin Plan') AS cliente_plan,
                COALESCE(u.nombre_completo, u.usuario, 'Desconocido') AS registrado_por
         FROM facturas f
         JOIN clientes c ON f.id_cliente = c.id_cliente
+        LEFT JOIN detalle_factura df ON f.id_factura = df.id_factura
+        LEFT JOIN productos p ON df.id_producto = p.id_producto
         LEFT JOIN usuarios u ON f.id_usuario = u.id
         WHERE 1=1
     '''
@@ -339,9 +343,10 @@ def facturacion():
         query += " AND f.estado = %s"
         params.append(estado)
     if plan:
-        query += " AND c.plan = %s"
+        query += " AND p.nombre = %s"
         params.append(plan)
     query += " ORDER BY f.numero DESC"
+    
     cursor.execute(query, params)
     facturas_db = cursor.fetchall()
     ahora = datetime.now()
@@ -567,39 +572,34 @@ def factura_pdf(id_factura):
     fecha_emision = fecha.strftime('%d/%m/%Y')
     fecha_autorizacion = fecha.strftime('%d/%m/%Y %H:%M:%S')
     
-    if detalle:
-        total = sum(float(d['subtotal']) for d in detalle)
-    else:
-        monto_str = factura['monto'] if factura['monto'] else '0.00'
-        total = float(monto_str.replace('$', '').strip())
+    monto_str = factura['monto'] if factura['monto'] else '0.00'
+    total = float(monto_str.replace('$', '').strip())
     
     subtotal_sin_iva = round(total / 1.15, 2)
     iva = round(total - subtotal_sin_iva, 2)
     
     detalle_preparado = []
-    for item in detalle:
-        descripcion = item['nombre']
-        if item.get('velocidad'):
-            descripcion += f" - {item['velocidad']}"
-        if item.get('descripcion'):
-            descripcion += f" ({item['descripcion']})"
-        precio_con_iva = float(item['precio_unitario'])
-        subtotal_con_iva = round(precio_con_iva * item['cantidad'], 2)
-        detalle_preparado.append({
-            'descripcion_completa': descripcion,
-            'cantidad': item['cantidad'],
-            'precio_unitario': precio_con_iva,
-            'subtotal': subtotal_con_iva
-        })
-    
-    if not detalle_preparado:
-        monto_str = factura['monto'] if factura['monto'] else '0.00'
-        precio_total = float(monto_str.replace('$', '').strip())
+    if detalle:
+        for item in detalle:
+            descripcion = item['nombre']
+            if item.get('velocidad'):
+                descripcion += f" - {item['velocidad']}"
+            if item.get('descripcion'):
+                descripcion += f" ({item['descripcion']})"
+            
+            # Asignamos el valor neto (sin IVA) directamente al ítem
+            detalle_preparado.append({
+                'descripcion_completa': descripcion,
+                'cantidad': item['cantidad'],
+                'precio_unitario': subtotal_sin_iva,
+                'subtotal': subtotal_sin_iva
+            })
+    else:
         detalle_preparado.append({
             'descripcion_completa': 'Servicio de Internet (ver monto total)',
             'cantidad': 1,
-            'precio_unitario': precio_total,
-            'subtotal': precio_total
+            'precio_unitario': subtotal_sin_iva,
+            'subtotal': subtotal_sin_iva
         })
     
     factura['periodo'] = periodo
@@ -878,5 +878,4 @@ def logout():
 
 
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(debug=True)

@@ -1,18 +1,20 @@
 import os
 import psycopg2
+from dotenv import load_dotenv
+
+# Carga las variables del archivo .env en tu entorno local.
+# En Render, esto no interfiere porque usará sus propias variables de entorno.
+load_dotenv()
 
 def get_connection():
-    # Render le enviará la URL de la base de datos automáticamente
     database_url = os.environ.get('DATABASE_URL')
     
     if database_url:
-        # usa la base de datos de la nube
         return psycopg2.connect(database_url)
     else:
-        # Si estás en local, usa tu base de datos local
         return psycopg2.connect(
-            host='localhost',
-            database='jlmconnect',
-            user='postgres',
-            password='Angel1990P' # Pon tu contraseña de tu PostgreSQL local
+            host=os.environ.get('DB_HOST', 'localhost'),
+            database=os.environ.get('DB_NAME', 'jlmconnect'),
+            user=os.environ.get('DB_USER', 'postgres'),
+            password=os.environ.get('DB_PASSWORD') 
         )

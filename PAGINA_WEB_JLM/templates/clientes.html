@@ -1,30 +1,153 @@
 {% extends "base.html" %}
 {% block title %}Clientes - JLM Connect 360{% endblock %}
 {% block content %}
+
+<!-- ESTILOS PERSONALIZADOS PARA EFECTO HOVER EN BOTONES -->
+<style>
+    /* Botones de acción con efecto hover */
+    .btn-accion {
+        transition: all 0.3s ease;
+        border: none;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    /* Botón Editar - Azul */
+    .btn-editar {
+        background-color: #0d6efd;
+        color: white;
+    }
+    .btn-editar:hover {
+        background-color: #0b5ed7;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(13, 110, 253, 0.4);
+        color: white;
+    }
+    
+    /* Botón Eliminar - Rojo */
+    .btn-eliminar {
+        background-color: #dc3545;
+        color: white;
+    }
+    .btn-eliminar:hover {
+        background-color: #bb2d3b;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(220, 53, 69, 0.4);
+        color: white;
+    }
+</style>
+
 <section class="mb-5 p-4 section-custom">
-    <h2 class="text-center mb-2">Clientes</h2>
+    <h2 class="text-center mb-4">Clientes</h2>
+    
     <p class="text-center">
-    <a href="{{ url_for('nuevo_cliente') }}" class="btn btn-outline-primary">+ Registrar nuevo cliente</a>
-     </p>
+        <a href="{{ url_for('nuevo_cliente') }}" class="btn btn-outline-primary">
+            <i class="bi bi-person-plus-fill"></i> + Registrar nuevo cliente
+        </a>
+    </p>
 
     <div class="table-responsive">
         <table class="table table-hover align-middle">
-            <thead>
-                <tr><th>#</th><th>Nombre</th><th>Sector</th><th>Plan</th><th>Estado</th></tr>
+            <thead class="table-light">
+                <tr>
+                    <th>#</th>
+                    <th>Nombre</th>
+                    <th>RUC/Cédula</th>
+                    <th>Cantón</th>
+                    <th>Ciudad</th>
+                    <th>Celular</th>
+                    <th>Correo</th>
+                    <th>Plan</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
             </thead>
             <tbody>
                 {% for cliente in clientes %}
                 <tr>
                     <td>{{ cliente.id_cliente }}</td>
-                    <td>{{ cliente.nombre | title }}</td>
-                    <td>{{ cliente.sector }}</td>
-                    <td><span class="badge bg-info text-dark">{{ cliente.plan }}</span></td>
+                    <td class="fw-bold">{{ cliente.nombre }}</td>
+                    <td>{{ cliente.ruc_cedula or '-' }}</td>
+                    <td><small class="text-muted">{{ cliente.canton or '-' }}</small></td>
+                    <td><small class="text-muted">{{ cliente.ciudad or '-' }}</small></td>
+                    <td>{{ cliente.celular or '-' }}</td>
+                    <td>
+                        {% if cliente.correo %}
+                        <a href="mailto:{{ cliente.correo }}" class="text-decoration-none">
+                            {{ cliente.correo }}
+                        </a>
+                        {% else %}
+                        -
+                        {% endif %}
+                    </td>
+                    
+                    <!-- PLAN: Mostrar desde la columna plan -->
+                    <td>
+                        <span class="fw-bold">
+                            {% if cliente.plan %}
+                                {% if cliente.plan == 'Residencial' %}
+                                    <i class="bi bi-house-fill text-success"></i> Residencial
+                                {% elif cliente.plan == 'Empresarial' %}
+                                    <i class="bi bi-building text-primary"></i> Empresarial
+                                {% elif cliente.plan == 'Educativo' %}
+                                    <i class="bi bi-mortarboard-fill text-info"></i> Educativo
+                                {% elif cliente.plan == 'Rural' %}
+                                    <i class="bi bi-tree-fill text-success"></i> Rural
+                                {% elif cliente.plan == 'Premium Fibra' %}
+                                    <i class="bi bi-lightning-charge-fill text-warning"></i> Premium Fibra
+                                {% elif cliente.plan == 'PYME' %}
+                                    <i class="bi bi-briefcase-fill text-secondary"></i> PYME
+                                {% elif cliente.plan == 'Comercial' %}
+                                    <i class="bi bi-shop text-primary"></i> Comercial
+                                {% else %}
+                                    {{ cliente.plan }}
+                                {% endif %}
+                            {% else %}
+                                <span class="text-muted">Sin plan</span>
+                            {% endif %}
+                        </span>
+                    </td>
+                    
+                    <!-- ESTADO -->
                     <td>
                         {% if cliente.estado == 'Activo' %}
-                        <span class="badge bg-success">{{ cliente.estado }}</span>
+                            <span class="badge" style="background-color: #32CD32 !important; color: #000;">
+                                <i class="bi bi-check-circle-fill"></i> Activo
+                            </span>
+                        {% elif cliente.estado == 'Suspendido' %}
+                            <span class="badge" style="background-color: #6f42c1 !important; color: white;">
+                                <i class="bi bi-x-diamond-fill"></i> Suspendido
+                            </span>
+                        {% elif cliente.estado == 'Pendiente instalación' %}
+                            <span class="badge bg-warning text-dark">
+                                <i class="bi bi-clock-fill"></i> Pendiente instalación
+                            </span>
                         {% else %}
-                        <span class="badge bg-warning text-dark">{{ cliente.estado }}</span>
+                            <span class="badge bg-secondary">{{ cliente.estado }}</span>
                         {% endif %}
+                    </td>
+                    
+                    <!-- ACCIONES -->
+                    <td>
+                        <!-- BOTÓN EDITAR (lápiz azul) -->
+                        <a href="{{ url_for('editar_cliente', id_cliente=cliente.id_cliente) }}" 
+                           class="btn btn-sm btn-accion btn-editar" title="Editar cliente">
+                            <i class="bi bi-pencil-fill"></i>
+                        </a>
+                        
+                        <!-- BOTÓN ELIMINAR (bote de basura rojo) -->
+                        <a href="{{ url_for('eliminar_cliente', id_cliente=cliente.id_cliente) }}" 
+                           class="btn btn-sm btn-accion btn-eliminar"
+                           onclick="return confirm('¿Estás seguro de eliminar a {{ cliente.nombre }}?')"
+                           title="Eliminar cliente">
+                            <i class="bi bi-trash-fill"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="10" class="text-center text-muted py-4">
+                        <i class="bi bi-inbox fs-3"></i><br>
+                        No hay clientes registrados.
                     </td>
                 </tr>
                 {% endfor %}

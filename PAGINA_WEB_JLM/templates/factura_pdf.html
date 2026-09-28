@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Factura {{ factura.numero }}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 1.2cm;
+        }
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 10px;
+            color: #000;
+            margin: 0;
+            padding: 0;
+            line-height: 1.4;
+        }
+        
+        .header-table {
+            width: 100%;
+            border-collapse: collapse;
+            height: 220px;
+        }
+        .header-table td {
+            vertical-align: middle;
+            padding: 8px 10px;
+            border: 1px solid #000;
+        }
+        .empresa-cell {
+            width: 55%;
+            text-align: center;
+        }
+        .empresa-interna {
+            width: 100%;
+            border-collapse: collapse;
+            border: none !important;
+        }
+        .empresa-interna td {
+            border: none !important;
+            padding: 3px 5px !important;
+            vertical-align: middle;
+            text-align: center;
+        }
+        .logo-cell {
+            width: 100%;
+            padding-bottom: 6px !important;
+        }
+        .logo-cell img {
+            max-width: 150px;
+            max-height: 65px;
+            display: block;
+            margin: 0 auto;
+        }
+        .datos-cell {
+            width: 100%;
+        }
+        .razon-social {
+            font-size: 14px;
+            font-weight: bold;
+            color: #1c4978;
+            margin-bottom: 4px;
+            text-align: center;
+        }
+        .dato {
+            font-size: 10.5px;
+            margin: 2px 0;
+            text-align: center;
+        }
+        .dato strong {
+            color: #1c4978;
+        }
+        
+        .factura-cell {
+            width: 45%;
+            text-align: left;
+            padding-left: 20px !important;
+        }
+        .factura-cell .ruc {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+        .factura-cell .titulo {
+            font-size: 22px;
+            font-weight: bold;
+            letter-spacing: 3px;
+            margin-bottom: 10px;
+            color: #1c4978;
+        }
+        .factura-cell .info-line {
+            font-size: 10px;
+            margin: 4px 0;
+        }
+        .factura-cell .info-line strong {
+            color: #1c4978;
+        }
+        
+        .tabla-unificada {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 10px;
+        }
+        .tabla-unificada td, .tabla-unificada th {
+            border: 1px solid #000;
+            padding: 5px 4px;
+            vertical-align: middle;
+        }
+        
+        .col-num { width: 4%; text-align: center; }
+        .col-desc { width: 46%; }
+        .col-cant { width: 8%; text-align: center; }
+        .col-precio { width: 14%; text-align: right; }
+        .col-descuento { width: 10%; text-align: center; }
+        .col-total { width: 18%; text-align: right; }
+        
+        .cliente-label {
+            font-size: 8px;
+            color: #666;
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+        .cliente-valor {
+            font-size: 10px;
+            font-weight: bold;
+            color: #1c4978;
+        }
+        
+        .tabla-detalle th {
+            background-color: #1c4978 !important;
+            color: #ffffff !important;
+            padding: 6px 5px !important;
+            text-align: center !important;
+            border: 1px solid #000 !important;
+            font-size: 10px !important;
+            font-weight: bold !important;
+        }
+        .tabla-detalle td {
+            padding: 6px 5px !important;
+            border: 1px solid #000 !important;
+            vertical-align: middle !important;
+        }
+        
+        .footer-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 0;
+        }
+        .footer-table td {
+            border: 1px solid #000;
+            padding: 6px;
+            vertical-align: top;
+        }
+        .info-adicional {
+            width: 55%;
+        }
+        .info-adicional .titulo {
+            font-weight: bold;
+            font-size: 11px;
+            color: #1c4978;
+            margin-bottom: 5px;
+            border-bottom: 1px solid #1c4978;
+            padding-bottom: 2px;
+        }
+        .info-adicional .dato {
+            font-size: 10px;
+            margin: 3px 0;
+        }
+        .info-adicional .dato strong {
+            color: #1c4978;
+        }
+        .totales-cell {
+            width: 45%;
+        }
+        .totales-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 10px;
+        }
+        .totales-table td {
+            border: 1px solid #000;
+            padding: 4px 6px;
+        }
+        .totales-table .label-cell {
+            text-align: right;
+            font-weight: bold;
+            background-color: #f5f5f5;
+        }
+        .totales-table .valor-cell {
+            text-align: right;
+            width: 35%;
+        }
+        .totales-table .total-final {
+            background-color: #1c4978 !important;
+            color: #ffffff !important;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        .totales-table .total-final td {
+            border: 1px solid #000;
+        }
+        .totales-table .total-final .label-cell {
+            color: #ffffff !important;
+            background-color: #1c4978 !important;
+        }
+        .totales-table .total-final .valor-cell {
+            color: #ffffff !important;
+            font-size: 13px;
+        }
+        
+        .footer-legal {
+            text-align: center;
+            font-size: 9px;
+            color: #666;
+            margin-top: 8px;
+            padding-top: 5px;
+            border-top: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ENCABEZADO -->
+    <table class="header-table">
+        <tr>
+            <td class="empresa-cell">
+                <table class="empresa-interna">
+                    <tr>
+                        <td class="logo-cell">
+                            <img src="{{ logo_path }}" alt="JLM Connect 360">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="datos-cell">
+                            <div class="razon-social">JLM CONNECT 360</div>
+                            <div class="dato"><strong>RUC:</strong> 1499999999001</div>
+                            <div class="dato"><strong>Dirección:</strong> Macas, Morona Santiago, Ecuador</div>
+                            <div class="dato"><strong>Teléfono:</strong> 0967781901</div>
+                            <div class="dato"><strong>Email:</strong> jlmconnect360@outlook.com</div>
+                            <div class="dato"><strong>Ciudad:</strong> Macas - ECUADOR</div>
+                            <div class="dato"><strong>Obligado a llevar contabilidad:</strong> SÍ</div>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+            <td class="factura-cell">
+                <div class="ruc">R.U.C.: 1499999999001</div>
+                <div class="titulo">FACTURA</div>
+                <div class="info-line"><strong>N°:</strong> {{ factura.numero }}</div>
+                <div class="info-line"><strong>NÚMERO DE AUTORIZACIÓN:</strong></div>
+                <div class="info-line">220920260114999999900100010000000001</div>
+                <div class="info-line"><strong>FECHA Y HORA DE AUTORIZACIÓN:</strong></div>
+                <div class="info-line">{{ factura.fecha_autorizacion }}</div>
+                <div class="info-line"><strong>AMBIENTE:</strong> Producción</div>
+                <div class="info-line"><strong>EMISIÓN:</strong> Normal</div>
+            </td>
+        </tr>
+    </table>
+
+    <!-- TABLA UNIFICADA: Cliente + Detalle -->
+    <table class="tabla-unificada">
+        <tr>
+            <td class="col-num"></td>
+            <td class="col-desc" colspan="2">
+                <div class="cliente-label">Razón Social/Nombres y Apellidos:</div>
+                <div class="cliente-valor">{{ factura.cliente_nombre }}</div>
+            </td>
+            <td class="col-cant" colspan="2">
+                <div class="cliente-label">Identificación:</div>
+                <div class="cliente-valor">{{ factura.cliente_ruc or '9999999999999' }}</div>
+            </td>
+            <td class="col-total">
+                <div class="cliente-label">Fecha Emisión:</div>
+                <div class="cliente-valor">{{ factura.fecha_emision }}</div>
+            </td>
+        </tr>
+        <tr>
+            <td class="col-num"></td>
+            <td class="col-desc" colspan="2">
+                <div class="cliente-label">Dirección:</div>
+                <div class="cliente-valor">{{ factura.cliente_sector or 'No registrada' }}</div>
+            </td>
+            <td class="col-cant" colspan="2">
+                <div class="cliente-label">Cantón / Ciudad:</div>
+                <div class="cliente-valor">{{ factura.cliente_ciudad or '-' }} / {{ factura.cliente_canton or '-' }}</div>
+            </td>
+            <td class="col-total">
+                <div class="cliente-label">Guía Remisión:</div>
+                <div class="cliente-valor">-</div>
+            </td>
+        </tr>
+        <tr class="tabla-detalle">
+            <th class="col-num">#</th>
+            <th class="col-desc">Descripción</th>
+            <th class="col-cant">Cantidad</th>
+            <th class="col-precio">Precio Unit.</th>
+            <th class="col-descuento">Descuento</th>
+            <th class="col-total">Precio Total</th>
+        </tr>
+        {% for item in detalle %}
+        <tr class="tabla-detalle">
+            <td class="col-num">{{ loop.index }}</td>
+            <td class="col-desc">{{ item.descripcion_completa }}</td>
+            <td class="col-cant">{{ item.cantidad }}</td>
+            <td class="col-precio">${{ "%.2f"|format(item.precio_unitario) }}</td>
+            <td class="col-descuento">0</td>
+            <td class="col-total">${{ "%.2f"|format(item.subtotal) }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <!-- BLOQUE INFERIOR: Info Adicional + Totales -->
+    <table class="footer-table">
+        <tr>
+            <td class="info-adicional">
+                <div class="titulo">Información Adicional</div>
+                <div class="dato"><strong>Período:</strong> {{ factura.periodo }}</div>
+                <div class="dato"><strong>Forma de Pago:</strong> {{ factura.forma_pago or 'Efectivo' }}</div>
+                <div class="dato"><strong>Registrado por:</strong> {{ factura.registrado_por }}</div>
+                <div class="dato"><strong># Items:</strong> {{ detalle|length }}</div>
+                {% if factura.estado == 'Anulada' %}
+                <div class="dato" style="color: #dc3545; font-weight: bold; margin-top: 10px;">
+                    <strong>Motivo de anulación:</strong> {{ factura.motivo_anulacion or 'No especificado' }}
+                </div>
+                {% if factura.observaciones_anulacion %}
+                <div class="dato" style="color: #dc3545;">
+                    <strong>Observaciones:</strong> {{ factura.observaciones_anulacion }}
+                </div>
+                {% endif %}
+                {% endif %}
+            </td>
+            <td class="totales-cell">
+                <table class="totales-table">
+                    <tr>
+                        <td class="label-cell">SUBTOTAL 15%:</td>
+                        <td class="valor-cell">${{ "%.2f"|format(factura.subtotal_sin_iva) }}</td>
+                    </tr>
+                    <tr>
+                        <td class="label-cell">SUBTOTAL 0%:</td>
+                        <td class="valor-cell">$0.00</td>
+                    </tr>
+                    <tr>
+                        <td class="label-cell">SUBTOTAL No sujeto de IVA:</td>
+                        <td class="valor-cell">$0.00</td>
+                    </tr>
+                    <tr>
+                        <td class="label-cell">SUBTOTAL SIN IMPUESTOS:</td>
+                        <td class="valor-cell">$0.00</td>
+                    </tr>
+                    <tr>
+                        <td class="label-cell">DESCUENTO:</td>
+                        <td class="valor-cell">$0.00</td>
+                    </tr>
+                    <tr>
+                        <td class="label-cell">ICE:</td>
+                        <td class="valor-cell">$0.00</td>
+                    </tr>
+                    <tr>
+                        <td class="label-cell">IVA 15%:</td>
+                        <td class="valor-cell">${{ "%.2f"|format(factura.iva) }}</td>
+                    </tr>
+                    <tr>
+                        <td class="label-cell">PROPINA:</td>
+                        <td class="valor-cell">$0.00</td>
+                    </tr>
+                    <tr class="total-final">
+                        <td class="label-cell">VALOR TOTAL:</td>
+                        <td class="valor-cell">${{ "%.2f"|format(factura.total) }}</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+
+    <!-- PIE DE PÁGINA -->
+    <div class="footer-legal">
+        {% if factura.estado == 'Anulada' %}
+        <div style="color: #dc3545; font-weight: bold; margin-bottom: 5px;">
+            ⚠️ ESTA FACTURA FUE ANULADA - NO TIENE VALIDEZ FISCAL ⚠️
+        </div>
+        {% endif %}
+        Este documento es un comprobante de venta válido. Gracias por su preferencia.<br>
+        JLM Connect 360 | RUC: 1499999999001 | Macas, Morona Santiago, Ecuador | 0967781901 | jlmconnect360@outlook.com
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Agregar Plan - JLM Connect 360{% endblock %}
+{% block content %}
+<section class="mb-5 p-4 section-custom">
+    <h2 class="text-center mb-4">Agregar Plan a {{ cliente.nombre }}</h2>
+    
+    <div class="mb-3">
+        <a href="{{ url_for('ver_cliente', id_cliente=id_cliente) }}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left"></i> Volver al cliente
+        </a>
+    </div>
+
+    <form method="POST" class="col-md-6 mx-auto">
+        <div class="card p-4 shadow-sm">
+            <h5 class="mb-3">Selecciona el plan a agregar:</h5>
+            
+            <div class="mb-3">
+                <label class="form-label fw-bold">Plan</label>
+                <select name="id_producto" class="form-select" required>
+                    <option value="">-- Seleccione un plan --</option>
+                    {% for producto in productos %}
+                    <option value="{{ producto.id_producto }}">
+                        {{ producto.nombre }} - ${{ producto.precio }}/mes
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Agregar Plan
+                </button>
+            </div>
+        </div>
+    </form>
+</section>
+{% endblock %}

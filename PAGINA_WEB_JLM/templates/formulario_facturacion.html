@@ -1,41 +1,131 @@
 {% extends "base.html" %}
-{% block title %}Nueva Factura - JLM Connect 360{% endblock %}
+{% block title %}{% if editar %}Editar{% else %}Nueva{% endif %} Factura - JLM Connect 360{% endblock %}
 {% block content %}
 <section class="mb-5 p-4 section-custom">
-    <h2 class="text-center mb-4">Registrar Nueva Factura</h2>
-    <form method="POST" class="col-md-6 mx-auto">
+    <h2 class="text-center mb-4">
+        {% if editar %}Editar Factura {{ numero_factura }}{% else %}Registrar Nueva Factura{% endif %}
+    </h2>
+    
+    <!-- Botones de navegación arriba -->
+    <div class="mb-3 d-flex gap-2">
+        <a href="{{ url_for('facturacion') }}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left"></i> Volver al listado de facturas
+        </a>
+    </div>
+    
+    <form method="POST" class="col-md-8 mx-auto" enctype="multipart/form-data">
         {{ form.hidden_tag() }}
+
+        <!-- Número de factura automático -->
         <div class="mb-3">
-            {{ form.numero.label(class="form-label") }}
-            {{ form.numero(class="form-control") }}
-            {% for error in form.numero.errors %}
+            <label class="form-label fw-bold">N° Factura (Automático)</label>
+            <input type="text" class="form-control bg-light" value="{{ numero_factura }}" readonly>
+        </div>
+
+        <!-- Cliente -->
+        <div class="mb-3">
+            {{ form.id_cliente.label(class="form-label fw-bold") }}
+            {{ form.id_cliente(class="form-select") }}
+            {% for error in form.id_cliente.errors %}
             <div class="text-danger small">{{ error }}</div>
             {% endfor %}
         </div>
 
+        <!-- Plan/Servicio -->
         <div class="mb-3">
-    {{ form.id_cliente.label(class="form-label") }}
-    {{ form.id_cliente(class="form-select") }}
-    {% for error in form.id_cliente.errors %}
-    <div class="text-danger small">{{ error }}</div>
-    {% endfor %}
-        </div>
-
-        <div class="mb-3">
-            {{ form.monto.label(class="form-label") }}
-            {{ form.monto(class="form-control") }}
-            {% for error in form.monto.errors %}
+            {{ form.id_producto.label(class="form-label fw-bold") }}
+            {{ form.id_producto(class="form-select", id="id_producto_select") }}
+            {% for error in form.id_producto.errors %}
             <div class="text-danger small">{{ error }}</div>
             {% endfor %}
         </div>
+
+        <!-- Monto automático -->
         <div class="mb-3">
-            {{ form.estado.label(class="form-label") }}
-            {{ form.estado(class="form-control") }}
+            <label class="form-label fw-bold">Monto a Cancelar</label>
+            <input type="text" id="monto_display" class="form-control bg-light fw-bold text-success" readonly placeholder="Seleccione un plan">
+        </div>
+
+        <!-- Forma de Pago -->
+        <div class="mb-3">
+            {{ form.forma_pago.label(class="form-label fw-bold") }}
+            {{ form.forma_pago(class="form-select", id="forma_pago_select") }}
+            <div class="form-text">
+                <i class="bi bi-info-circle"></i> Si selecciona Transferencia o Depósito, deberá subir el comprobante en PDF.
+            </div>
+            {% for error in form.forma_pago.errors %}
+            <div class="text-danger small">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <!-- Comprobante de Pago -->
+        <div class="mb-3" id="comprobante_container" style="display: none;">
+            {{ form.comprobante_pago.label(class="form-label fw-bold") }}
+            {{ form.comprobante_pago(class="form-control", accept="application/pdf") }}
+            <div class="form-text text-danger">
+                <i class="bi bi-exclamation-triangle"></i> Archivo PDF obligatorio para Transferencia o Depósito.
+            </div>
+            {% for error in form.comprobante_pago.errors %}
+            <div class="text-danger small">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <!-- Estado -->
+        <div class="mb-3">
+            {{ form.estado.label(class="form-label fw-bold") }}
+            {{ form.estado(class="form-select") }}
             {% for error in form.estado.errors %}
             <div class="text-danger small">{{ error }}</div>
             {% endfor %}
         </div>
-        {{ form.submit(class="btn btn-primary custom-btn") }}
+
+        <!-- Botones de acción -->
+        <div class="d-grid gap-2 d-md-flex justify-content-md-between mt-4 pt-3 border-top">
+            <a href="{{ url_for('facturacion') }}" class="btn btn-outline-danger">
+                <i class="bi bi-x-circle"></i> Cancelar y volver
+            </a>
+            {{ form.submit(class="btn btn-primary flex-grow-1 ms-2") }}
+        </div>
     </form>
 </section>
+
+<script>
+    // Script para llenar automáticamente el monto al seleccionar un plan
+    const selectProducto = document.getElementById('id_producto_select');
+    const montoDisplay = document.getElementById('monto_display');
+
+    selectProducto.addEventListener('change', function() {
+        const selectedText = this.options[this.selectedIndex].text;
+        const match = selectedText.match(/\$[\d\.]+/);
+        if (match) {
+            montoDisplay.value = match[0];
+        } else {
+            montoDisplay.value = "";
+        }
+    });
+
+    if (selectProducto.value) {
+        selectProducto.dispatchEvent(new Event('change'));
+    }
+
+    // Script para mostrar/ocultar el campo de comprobante según forma de pago
+    const formaPagoSelect = document.getElementById('forma_pago_select');
+    const comprobanteContainer = document.getElementById('comprobante_container');
+    const comprobanteInput = comprobanteContainer.querySelector('input[type="file"]');
+
+    function toggleComprobante() {
+        const valor = formaPagoSelect.value;
+        if (valor === 'Transferencia' || valor === 'Deposito') {
+            comprobanteContainer.style.display = 'block';
+            comprobanteInput.required = true;
+        } else {
+            comprobanteContainer.style.display = 'none';
+            comprobanteInput.required = false;
+            comprobanteInput.value = '';
+        }
+    }
+
+    formaPagoSelect.addEventListener('change', toggleComprobante);
+    toggleComprobante();
+</script>
 {% endblock %}

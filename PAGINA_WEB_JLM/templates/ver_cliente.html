@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}{{ cliente.nombre }} - JLM Connect 360{% endblock %}
+{% block content %}
+<section class="mb-5 p-4 section-custom">
+    <h2 class="text-center mb-4">{{ cliente.nombre }}</h2>
+    
+    <div class="mb-3">
+        <a href="{{ url_for('clientes_route') }}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left"></i> Volver al listado
+        </a>
+    </div>
+
+    <div class="row">
+        <!-- Datos del cliente -->
+        <div class="col-md-6">
+            <div class="card p-4 shadow-sm mb-4">
+                <h5 class="mb-3"><i class="bi bi-person-circle"></i> Datos del Cliente</h5>
+                <p><strong>RUC/Cédula:</strong> {{ cliente.ruc_cedula }}</p>
+                <p><strong>Celular:</strong> {{ cliente.celular }}</p>
+                <p><strong>Correo:</strong> {{ cliente.correo }}</p>
+                <p><strong>Cantón:</strong> {{ cliente.canton }}</p>
+                <p><strong>Ciudad:</strong> {{ cliente.ciudad }}</p>
+                <p><strong>Dirección:</strong> {{ cliente.sector }}</p>
+            </div>
+        </div>
+
+        <!-- Planes contratados -->
+        <div class="col-md-6">
+            <div class="card p-4 shadow-sm">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0"><i class="bi bi-wifi"></i> Planes Contratados</h5>
+                    <a href="{{ url_for('agregar_plan_cliente', id_cliente=cliente.id_cliente) }}" 
+                       class="btn btn-sm btn-primary">
+                        <i class="bi bi-plus-circle"></i> Agregar Plan
+                    </a>
+                </div>
+                
+                {% if suscripciones %}
+                <div class="list-group">
+                    {% for sus in suscripciones %}
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>{{ sus.plan }}</strong><br>
+                            <small class="text-muted">{{ sus.velocidad }} | Desde: {{ sus.fecha_inicio }}</small>
+                        </div>
+                        <div>
+                            <span class="badge bg-success">${{ sus.precio }}/mes</span>
+                            {% if sus.estado == 'Activo' %}
+                                <span class="badge bg-primary">Activo</span>
+                            {% else %}
+                                <span class="badge bg-secondary">{{ sus.estado }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted text-center">No tiene planes contratados.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

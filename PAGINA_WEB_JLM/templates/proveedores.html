@@ -2,102 +2,31 @@
 {% block title %}Proveedores - JLM Connect 360{% endblock %}
 {% block content %}
 
-<!-- ESTILOS PERSONALIZADOS PARA EFECTO HOVER EN BOTONES -->
-<style>
-    /* Botones de acción con efecto hover */
-    .btn-accion {
-        transition: all 0.3s ease;
-        border: none;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    
-    /* Botón Editar - Azul */
-    .btn-editar {
-        background-color: #0d6efd;
-        color: white;
-    }
-    .btn-editar:hover {
-        background-color: #0b5ed7;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(13, 110, 253, 0.4);
-        color: white;
-    }
-    
-    /* Botón Eliminar - Rojo */
-    .btn-eliminar {
-        background-color: #dc3545;
-        color: white;
-    }
-    .btn-eliminar:hover {
-        background-color: #bb2d3b;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(220, 53, 69, 0.4);
-        color: white;
-    }
-</style>
-
 <section class="mb-5 p-4 section-custom">
     <h2 class="text-center mb-2">Proveedores</h2>
-    <p class="text-center text-muted mb-4">Empresas que suministran equipos e insumos para nuestros servicios</p>
-    
-    <p class="text-center mb-4">
-        <a href="{{ url_for('nuevo_proveedor') }}" class="btn btn-outline-primary">
-            <i class="bi bi-truck"></i> + Registrar Proveedor
-        </a>
-    </p>
+    <p class="text-center text-muted mb-4">Empresas que suministran equipos e insumos para la red.</p>
 
-    <div class="table-responsive">
-        <table class="table table-hover align-middle">
-            <thead class="table-light">
-                <tr>
-                    <th>#</th>
-                    <th>Nombre</th>
-                    <th>Producto / Servicio</th>
-                    <th>Contacto</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for proveedor in proveedores %}
-                <tr>
-                    <td>{{ proveedor.id_proveedor }}</td>
-                    <td class="fw-bold">{{ proveedor.nombre }}</td>
-                    <td>{{ proveedor.producto }}</td>
-                    <td>
-                        {% if proveedor.contacto %}
-                        <a href="mailto:{{ proveedor.contacto }}" class="text-decoration-none">
-                            <i class="bi bi-envelope-fill text-primary"></i> {{ proveedor.contacto }}
-                        </a>
-                        {% else %}
-                        <span class="text-muted">-</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        <!-- BOTÓN EDITAR (lápiz azul) -->
-                        <a href="{{ url_for('editar_proveedor', id_proveedor=proveedor.id_proveedor) }}" 
-                           class="btn btn-sm btn-accion btn-editar" title="Editar proveedor">
-                            <i class="bi bi-pencil-fill"></i>
-                        </a>
-                        
-                        <!-- BOTÓN ELIMINAR (bote de basura rojo) -->
-                        <a href="{{ url_for('eliminar_proveedor', id_proveedor=proveedor.id_proveedor) }}" 
-                           class="btn btn-sm btn-accion btn-eliminar"
-                           onclick="return confirm('¿Estás seguro de eliminar a {{ proveedor.nombre }}?')"
-                           title="Eliminar proveedor">
-                            <i class="bi bi-trash-fill"></i>
-                        </a>
-                    </td>
-                </tr>
-                {% else %}
-                <tr>
-                    <td colspan="5" class="text-center text-muted py-4">
-                        <i class="bi bi-inbox fs-3"></i><br>
-                        No hay proveedores registrados.
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+```
+<p class="text-center">
+    <a href="{{ url_for('nuevo_proveedor') }}" class="btn btn-outline-primary">+ Registrar nuevo proveedor</a>
+</p>
+
+<div class="table-responsive">
+    <table class="table table-hover align-middle">
+        <thead><tr><th>#</th><th>Proveedor</th><th>Producto / Servicio</th><th>Contacto</th></tr></thead>
+        <tbody>
+            {% for proveedor in proveedores %}
+            <tr>
+                <td>{{ proveedor.id_proveedor }}</td>
+                <td>{{ proveedor.nombre }}</td>
+                <td>{{ proveedor.producto }}</td>
+                <td><a href="mailto:{{ proveedor.contacto }}">{{ proveedor.contacto }}</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+```
+
 </section>
 {% endblock %}

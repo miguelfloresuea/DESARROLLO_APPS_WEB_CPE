@@ -29,3 +29,6 @@ desktop.ini
 # Bases de datos locales
 *.db
 data/*.db
+
+#Ocultar datos conexion
+.env

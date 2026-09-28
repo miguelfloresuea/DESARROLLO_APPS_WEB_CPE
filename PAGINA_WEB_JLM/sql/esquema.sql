@@ -49,7 +49,7 @@ CREATE TABLE suscripciones (
     id_cliente INTEGER NOT NULL REFERENCES clientes(id_cliente) ON DELETE CASCADE,
     id_producto INTEGER NOT NULL REFERENCES productos(id_producto) ON DELETE CASCADE,
     fecha_inicio DATE DEFAULT CURRENT_DATE,
-    estado VARCHAR(20) DEFAULT 'Activo'
+    estado VARCHAR(21) DEFAULT 'Activo'
 );
 
 CREATE TABLE facturas (

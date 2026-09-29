@@ -84,6 +84,18 @@
                                     <strong>{{ nombre_completo or current_user.usuario }}</strong>
                                 </li>
                                 <li><hr class="dropdown-divider"></li>
+                                
+                                <!-- NUEVO: ACCESO AL PANEL DE PERMISOS -->
+                                {% if current_user.es_admin %}
+                                <li>
+                                    <a class="dropdown-item text-primary fw-bold" href="{{ url_for('gestionar_permisos') }}">
+                                        <i class="bi bi-shield-lock"></i> Panel de Permisos
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                {% endif %}
+                                <!-- FIN NUEVO -->
+
                                 <li>
                                     <a class="dropdown-item text-danger" href="{{ url_for('logout') }}">
                                         <i class="bi bi-box-arrow-right"></i> Cerrar sesión

@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4 mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-people-fill text-primary"></i> Panel de Perfiles y Roles</h2>
+    </div>
+    
+    {% include 'includes/mensajes.html' ignore missing %}
+
+    <!-- Formularios independientes para usuarios activos -->
+    {% for u in usuarios %}
+        {% if not u.es_admin %}
+        <form id="form_rol_{{ u.id }}" method="POST" action="{{ url_for('gestionar_permisos') }}"></form>
+        {% endif %}
+    {% endfor %}
+
+    <!-- SECCIÓN 1: USUARIOS ACTIVOS -->
+    <div class="card shadow-sm border-0 mb-5">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0"><i class="bi bi-person-check-fill text-success"></i> Usuarios Activos</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col" class="ps-4">Usuario</th>
+                            <th scope="col">Perfil de Acceso</th>
+                            <th scope="col" class="text-center pe-4">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for u in usuarios %}
+                        <tr>
+                            <td class="ps-4">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-primary text-white rounded-circle d-flex justify-content-center align-items-center me-3 shadow-sm" style="width: 40px; height: 40px; font-weight: bold; font-size: 1.2rem;">
+                                        {{ u.nombre_completo[:1] | upper if u.nombre_completo else 'U' }}
+                                    </div>
+                                    <div>
+                                        <span class="fw-bold d-block text-dark">{{ u.nombre_completo }}</span>
+                                        <small class="text-muted">@{{ u.usuario }}</small>
+                                    </div>
+                                </div>
+                                {% if not u.es_admin %}
+                                <input type="hidden" name="usuario_id" value="{{ u.id }}" form="form_rol_{{ u.id }}">
+                                {% endif %}
+                            </td>
+                            
+                            <td>
+                                {% if u.es_admin %}
+                                    <span class="badge bg-danger fs-6 py-2 px-3 shadow-sm">
+                                        <i class="bi bi-shield-lock-fill me-1"></i> Administrador
+                                    </span>
+                                {% else %}
+                                    <select name="rol" class="form-select shadow-sm" form="form_rol_{{ u.id }}">
+                                        <option value="Ventas" {% if u.rol == 'Ventas' %}selected{% endif %}>Ventas (Crear/Editar Clientes)</option>
+                                        <option value="Supervisor" {% if u.rol == 'Supervisor' %}selected{% endif %}>Supervisor (Edición Total)</option>
+                                        <option value="Tecnico" {% if u.rol == 'Tecnico' %}selected{% endif %}>Técnico (Solo Visualizar)</option>
+                                    </select>
+                                {% endif %}
+                            </td>
+                            
+                            <td class="text-center pe-4">
+                                {% if not u.es_admin %}
+                                <div class="d-flex justify-content-center gap-2">
+                                    <button type="submit" form="form_rol_{{ u.id }}" class="btn btn-primary btn-sm px-3 shadow-sm rounded-pill" title="Guardar Rol">
+                                        <i class="bi bi-floppy"></i> Guardar
+                                    </button>
+                                    <a href="{{ url_for('desactivar_usuario', id_usuario=u.id) }}" class="btn btn-outline-danger btn-sm px-3 shadow-sm rounded-pill" onclick="return confirm('¿Desactivar al usuario {{ u.nombre_completo }}? Ya no podrá iniciar sesión.');" title="Desactivar Usuario">
+                                        <i class="bi bi-person-x"></i> Desactivar
+                                    </a>
+                                </div>
+                                {% else %}
+                                <span class="text-muted small">Protegido</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECCIÓN 2: USUARIOS INACTIVOS (AL FINAL) -->
+    {% if usuarios_inactivos %}
+    <div class="card shadow-sm border-0 border-secondary">
+        <div class="card-header bg-secondary text-white">
+            <h5 class="mb-0"><i class="bi bi-person-dash-fill"></i> Usuarios Inactivos (Historial)</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 text-muted">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col" class="ps-4">Usuario</th>
+                            <th scope="col">Último Rol Registrado</th>
+                            <th scope="col" class="text-center pe-4">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ui in usuarios_inactivos %}
+                        <tr>
+                            <td class="ps-4">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-secondary text-white rounded-circle d-flex justify-content-center align-items-center me-3 shadow-sm opacity-75" style="width: 40px; height: 40px; font-weight: bold; font-size: 1.2rem;">
+                                        {{ ui.nombre_completo[:1] | upper if ui.nombre_completo else 'U' }}
+                                    </div>
+                                    <div>
+                                        <span class="fw-bold d-block text-dark text-decoration-line-through">{{ ui.nombre_completo }}</span>
+                                        <small class="text-muted">@{{ ui.usuario }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border">{{ ui.rol }}</span>
+                            </td>
+                            <td class="text-center pe-4">
+                                <a href="{{ url_for('reactivar_usuario', id_usuario=ui.id) }}" class="btn btn-outline-success btn-sm px-3 shadow-sm rounded-pill" onclick="return confirm('¿Deseas reactivar al usuario {{ ui.nombre_completo }} para que pueda volver a iniciar sesión?');" title="Reactivar Usuario">
+                                    <i class="bi bi-person-check"></i> Reactivar
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

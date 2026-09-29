@@ -1,9 +1,9 @@
 import os
 from io import BytesIO
 from datetime import datetime, timezone, timedelta
-from flask import make_response, flash, request
+from functools import wraps
+from flask import Flask, render_template, redirect, url_for, make_response, flash, request, abort
 from xhtml2pdf import pisa
-from flask import Flask, render_template, redirect, url_for
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -25,16 +25,44 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
+
+# ===================== DECORADOR DE PERMISOS =====================
+def requiere_permiso(modulo, accion):
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            if not current_user.is_authenticated:
+                return redirect(url_for('login'))
+            
+            if getattr(current_user, 'es_admin', False):
+                return f(*args, **kwargs)
+            
+            nombre_permiso = f"{modulo}_{accion}"
+            if not getattr(current_user, nombre_permiso, False):
+                flash("No tienes los permisos necesarios para realizar esta acción.", "danger")
+                return abort(403)
+                
+            return f(*args, **kwargs)
+        return decorated_function
+    return decorator
+
+
 @login_manager.user_loader
 def load_user(user_id):
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute('SELECT id, usuario, password, nombre_completo FROM usuarios WHERE id = %s', (user_id,))
+    cursor.execute('''
+        SELECT id, usuario, password, nombre_completo, es_admin, rol, activo
+        FROM usuarios WHERE id = %s
+    ''', (user_id,))
     data = cursor.fetchone()
     cursor.close()
     conn.close()
-    if data:
-        return Usuario(data[0], data[1], data[2], data[3])
+    if data and data[6]: 
+        return Usuario(
+            id=data[0], usuario=data[1], password=data[2], nombre_completo=data[3],
+            es_admin=data[4], rol=data[5], activo=data[6]
+        )
     return None
 
 
@@ -43,7 +71,7 @@ def inicio():
     return render_template('index.html')
 
 
-# ===================== PRODUCTOS =====================
+# ===================== PRODUCTOS (PLANES) =====================
 
 @app.route('/productos')
 @login_required
@@ -55,13 +83,12 @@ def productos():
     cursor.close()
     conn.close()
     planes_db = [{"id_producto": f[0], "nombre": f[1], "velocidad": f[2], "precio": f[3], "descripcion": f[4]} for f in filas]
-    return render_template('productos.html', 
-                           planes=planes_db,
-                           nombre_completo=current_user.nombre_completo)
+    return render_template('productos.html', planes=planes_db, nombre_completo=current_user.nombre_completo)
 
 
 @app.route('/productos/nuevo', methods=['GET', 'POST'])
 @login_required
+@requiere_permiso('planes', 'crear')
 def nuevo_producto():
     form = ProductoForm()
     if form.validate_on_submit():
@@ -76,13 +103,12 @@ def nuevo_producto():
         conn.close()
         flash('Producto registrado exitosamente.', 'success')
         return redirect(url_for('productos'))
-    return render_template('formulario_producto.html', 
-                           form=form,
-                           nombre_completo=current_user.nombre_completo)
+    return render_template('formulario_producto.html', form=form, nombre_completo=current_user.nombre_completo)
 
 
 @app.route('/productos/editar/<int:id_producto>', methods=['GET', 'POST'])
 @login_required
+@requiere_permiso('planes', 'editar')
 def editar_producto(id_producto):
     conn = get_connection()
     cursor = conn.cursor()
@@ -104,13 +130,12 @@ def editar_producto(id_producto):
             form.nombre.data, form.velocidad.data, form.precio.data, form.descripcion.data = producto
     cursor.close()
     conn.close()
-    return render_template('formulario_producto.html', 
-                           form=form,
-                           nombre_completo=current_user.nombre_completo)
+    return render_template('formulario_producto.html', form=form, nombre_completo=current_user.nombre_completo)
 
 
 @app.route('/productos/eliminar/<int:id_producto>')
 @login_required
+@requiere_permiso('planes', 'eliminar')
 def eliminar_producto(id_producto):
     conn = get_connection()
     cursor = conn.cursor()
@@ -138,13 +163,12 @@ def clientes_route():
     clientes_db = cursor.fetchall()
     cursor.close()
     conn.close()
-    return render_template('clientes.html', 
-                           clientes=clientes_db,
-                           nombre_completo=current_user.nombre_completo)
+    return render_template('clientes.html', clientes=clientes_db, nombre_completo=current_user.nombre_completo)
 
 
 @app.route('/clientes/nuevo', methods=['GET', 'POST'])
 @login_required
+@requiere_permiso('clientes', 'crear')
 def nuevo_cliente():
     form = ClienteForm()
     conn = get_connection()
@@ -177,14 +201,12 @@ def nuevo_cliente():
         flash('Cliente registrado exitosamente.', 'success')
         return redirect(url_for('clientes_route'))
     
-    return render_template('formulario_cliente.html', 
-                           form=form,
-                           productos=productos_db,
-                           nombre_completo=current_user.nombre_completo)
+    return render_template('formulario_cliente.html', form=form, productos=productos_db, nombre_completo=current_user.nombre_completo)
 
 
 @app.route('/clientes/editar/<int:id_cliente>', methods=['GET', 'POST'])
 @login_required
+@requiere_permiso('clientes', 'editar')
 def editar_cliente(id_cliente):
     conn = get_connection()
     cursor = conn.cursor(cursor_factory=RealDictCursor)
@@ -226,11 +248,7 @@ def editar_cliente(id_cliente):
 
     cursor.close()
     conn.close()
-    return render_template('formulario_cliente.html', 
-                           form=form, 
-                           editar=True,
-                           productos=productos_db,
-                           nombre_completo=current_user.nombre_completo)
+    return render_template('formulario_cliente.html', form=form, editar=True, productos=productos_db, nombre_completo=current_user.nombre_completo)
 
 
 @app.route('/clientes/ver/<int:id_cliente>')
@@ -251,14 +269,12 @@ def ver_cliente(id_cliente):
     suscripciones = cursor.fetchall()
     cursor.close()
     conn.close()
-    return render_template('ver_cliente.html', 
-                           cliente=cliente,
-                           suscripciones=suscripciones,
-                           nombre_completo=current_user.nombre_completo)
+    return render_template('ver_cliente.html', cliente=cliente, suscripciones=suscripciones, nombre_completo=current_user.nombre_completo)
 
 
 @app.route('/clientes/agregar-plan/<int:id_cliente>', methods=['GET', 'POST'])
 @login_required
+@requiere_permiso('clientes', 'editar')
 def agregar_plan_cliente(id_cliente):
     conn = get_connection()
     cursor = conn.cursor(cursor_factory=RealDictCursor)
@@ -280,15 +296,12 @@ def agregar_plan_cliente(id_cliente):
     cliente = cursor.fetchone()
     cursor.close()
     conn.close()
-    return render_template('agregar_plan.html', 
-                           cliente=cliente,
-                           productos=productos,
-                           id_cliente=id_cliente,
-                           nombre_completo=current_user.nombre_completo)
+    return render_template('agregar_plan.html', cliente=cliente, productos=productos, id_cliente=id_cliente, nombre_completo=current_user.nombre_completo)
 
 
 @app.route('/clientes/eliminar/<int:id_cliente>')
 @login_required
+@requiere_permiso('clientes', 'eliminar')
 def eliminar_cliente(id_cliente):
     conn = get_connection()
     cursor = conn.cursor()
@@ -307,7 +320,6 @@ MESES_ESP = {
     5: 'Mayo', 6: 'Junio', 7: 'Julio', 8: 'Agosto',
     9: 'Septiembre', 10: 'Octubre', 11: 'Noviembre', 12: 'Diciembre'
 }
-
 
 @app.route('/facturacion')
 @login_required
@@ -333,11 +345,7 @@ def facturacion():
     '''
     params = []
     if busqueda:
-        query += """ AND (
-            f.numero ILIKE %s 
-            OR c.id_cliente::text = %s
-            OR c.nombre ILIKE %s
-        )"""
+        query += """ AND (f.numero ILIKE %s OR c.id_cliente::text = %s OR c.nombre ILIKE %s)"""
         params.extend([f"%{busqueda}%", busqueda, f"%{busqueda}%"])
     if estado:
         query += " AND f.estado = %s"
@@ -363,12 +371,7 @@ def facturacion():
             factura['editable'] = False
     cursor.close()
     conn.close()
-    return render_template('facturacion.html', 
-                           facturas=facturas_db, 
-                           busqueda=busqueda, 
-                           estado=estado, 
-                           plan=plan,
-                           nombre_completo=current_user.nombre_completo)
+    return render_template('facturacion.html', facturas=facturas_db, busqueda=busqueda, estado=estado, plan=plan, nombre_completo=current_user.nombre_completo)
 
 
 @app.route('/facturacion/nueva', methods=['GET', 'POST'])
@@ -395,9 +398,11 @@ def nueva_factura():
         siguiente_numero = 1
     numero_factura = f"F001-{siguiente_numero:06d}"
     cursor.close()
+    
     form = FacturacionForm()
     form.id_cliente.choices = [(c['id_cliente'], f"[{c['id_cliente']}] {c['nombre']}") for c in clientes_db]
     form.id_producto.choices = [(p['id_producto'], f"{p['nombre']} - {p['precio']}") for p in productos_db]
+    
     if form.validate_on_submit():
         cursor = conn.cursor()
         cursor.execute('SELECT precio FROM productos WHERE id_producto = %s', (form.id_producto.data,))
@@ -405,6 +410,7 @@ def nueva_factura():
         precio_str = producto_sel[0] if producto_sel else '0.00'
         precio_con_iva = float(precio_str.replace('$', '').strip())
         comprobante_path = None
+        
         if form.comprobante_pago.data and form.comprobante_pago.data.filename:
             carpeta_comprobantes = os.path.join(app.root_path, 'static', 'comprobantes')
             os.makedirs(carpeta_comprobantes, exist_ok=True)
@@ -412,15 +418,15 @@ def nueva_factura():
             filepath = os.path.join(carpeta_comprobantes, filename)
             form.comprobante_pago.data.save(filepath)
             comprobante_path = f"comprobantes/{filename}"
+            
         cursor.execute(
             '''INSERT INTO facturas (numero, id_cliente, monto, estado, id_usuario, forma_pago, comprobante_pago, fecha_creacion)
                VALUES (%s, %s, %s, %s, %s, %s, %s, NOW()) RETURNING id_factura''',
-            (numero_factura, form.id_cliente.data, precio_str, form.estado.data, 
-             current_user.id, form.forma_pago.data, comprobante_path)
+            (numero_factura, form.id_cliente.data, precio_str, form.estado.data, current_user.id, form.forma_pago.data, comprobante_path)
         )
         id_factura_nueva = cursor.fetchone()[0]
         subtotal_sin_iva = round(precio_con_iva / 1.15, 2)
-        iva = round(precio_con_iva - subtotal_sin_iva, 2)
+        
         cursor.execute(
             '''INSERT INTO detalle_factura (id_factura, id_producto, cantidad, precio_unitario, subtotal)
                VALUES (%s, %s, 1, %s, %s)''',
@@ -431,33 +437,32 @@ def nueva_factura():
         conn.close()
         flash(f'Factura {numero_factura} registrada exitosamente.', 'success')
         return redirect(url_for('facturacion'))
+        
     conn.close()
-    return render_template('formulario_facturacion.html', 
-                           form=form, 
-                           numero_factura=numero_factura,
-                           nombre_completo=current_user.nombre_completo)
+    return render_template('formulario_facturacion.html', form=form, numero_factura=numero_factura, nombre_completo=current_user.nombre_completo)
 
 
 @app.route('/facturacion/editar/<int:id_factura>', methods=['GET', 'POST'])
 @login_required
+@requiere_permiso('facturas', 'editar')
 def editar_factura(id_factura):
     conn = get_connection()
     cursor = conn.cursor(cursor_factory=RealDictCursor)
-    cursor.execute('''
-        SELECT id_factura, numero, id_cliente, monto, estado, forma_pago, fecha_creacion
-        FROM facturas WHERE id_factura = %s
-    ''', (id_factura,))
+    cursor.execute('SELECT id_factura, numero, id_cliente, monto, estado, forma_pago, fecha_creacion FROM facturas WHERE id_factura = %s', (id_factura,))
     factura_data = cursor.fetchone()
+    
     if not factura_data:
         flash('Factura no encontrada.', 'danger')
         cursor.close()
         conn.close()
         return redirect(url_for('facturacion'))
+        
     if factura_data['estado'] == 'Anulada':
         flash('No se puede editar una factura anulada.', 'danger')
         cursor.close()
         conn.close()
         return redirect(url_for('facturacion'))
+        
     fecha_creacion = factura_data['fecha_creacion']
     if fecha_creacion:
         if fecha_creacion.tzinfo is None:
@@ -470,6 +475,7 @@ def editar_factura(id_factura):
             cursor.close()
             conn.close()
             return redirect(url_for('facturacion'))
+            
     cursor.execute('SELECT id_cliente, nombre FROM clientes')
     clientes_db = cursor.fetchall()
     cursor.execute('SELECT id_producto, nombre, precio FROM productos')
@@ -477,6 +483,7 @@ def editar_factura(id_factura):
     form = FacturacionForm()
     form.id_cliente.choices = [(c['id_cliente'], f"[{c['id_cliente']}] {c['nombre']}") for c in clientes_db]
     form.id_producto.choices = [(p['id_producto'], f"{p['nombre']} - {p['precio']}") for p in productos_db]
+    
     if form.validate_on_submit():
         cursor2 = conn.cursor()
         comprobante_path = None
@@ -487,36 +494,31 @@ def editar_factura(id_factura):
             filepath = os.path.join(carpeta_comprobantes, filename)
             form.comprobante_pago.data.save(filepath)
             comprobante_path = f"comprobantes/{filename}"
+            
         if comprobante_path:
-            cursor2.execute(
-                'UPDATE facturas SET estado = %s, forma_pago = %s, comprobante_pago = %s WHERE id_factura = %s',
-                (form.estado.data, form.forma_pago.data, comprobante_path, id_factura)
-            )
+            cursor2.execute('UPDATE facturas SET estado = %s, forma_pago = %s, comprobante_pago = %s WHERE id_factura = %s',
+                            (form.estado.data, form.forma_pago.data, comprobante_path, id_factura))
         else:
-            cursor2.execute(
-                'UPDATE facturas SET estado = %s, forma_pago = %s WHERE id_factura = %s',
-                (form.estado.data, form.forma_pago.data, id_factura)
-            )
+            cursor2.execute('UPDATE facturas SET estado = %s, forma_pago = %s WHERE id_factura = %s',
+                            (form.estado.data, form.forma_pago.data, id_factura))
         conn.commit()
         cursor2.close()
         conn.close()
         flash('Factura actualizada correctamente.', 'success')
         return redirect(url_for('facturacion'))
+        
     if request.method == 'GET':
         form.id_cliente.data = factura_data['id_cliente']
         form.estado.data = factura_data['estado']
         form.forma_pago.data = factura_data.get('forma_pago', 'Efectivo')
     cursor.close()
     conn.close()
-    return render_template('formulario_facturacion.html', 
-                           form=form, 
-                           editar=True, 
-                           numero_factura=factura_data['numero'],
-                           nombre_completo=current_user.nombre_completo)
+    return render_template('formulario_facturacion.html', form=form, editar=True, numero_factura=factura_data['numero'], nombre_completo=current_user.nombre_completo)
 
 
 @app.route('/facturacion/anular/<int:id_factura>', methods=['GET', 'POST'])
 @login_required
+@requiere_permiso('facturas', 'anular')
 def anular_factura(id_factura):
     if request.method == 'POST':
         motivo = request.form.get('motivo', '')
@@ -541,10 +543,8 @@ def anular_factura(id_factura):
 @app.route('/facturacion/pdf/<int:id_factura>')
 @login_required
 def factura_pdf(id_factura):
-    """Generar PDF de la factura con sello ANULADA (solo texto, sin rectángulo)"""
     conn = get_connection()
     cursor = conn.cursor(cursor_factory=RealDictCursor)
-    
     cursor.execute('''
         SELECT f.id_factura, f.numero, f.monto, f.estado, f.forma_pago, f.fecha_creacion,
                f.motivo_anulacion, f.observaciones_anulacion,
@@ -567,17 +567,14 @@ def factura_pdf(id_factura):
     ''', (id_factura,))
     detalle = cursor.fetchall()
     
-    # Ajuste de hora UTC a hora local de Ecuador (UTC-5)
     fecha_utc = factura['fecha_creacion'] if factura['fecha_creacion'] else datetime.now()
     fecha = fecha_utc - timedelta(hours=5)
-
     periodo = f"{MESES_ESP[fecha.month]} {fecha.year}"
     fecha_emision = fecha.strftime('%d/%m/%Y')
     fecha_autorizacion = fecha.strftime('%d/%m/%Y %H:%M:%S')
     
     monto_str = factura['monto'] if factura['monto'] else '0.00'
     total = float(monto_str.replace('$', '').strip())
-    
     subtotal_sin_iva = round(total / 1.15, 2)
     iva = round(total - subtotal_sin_iva, 2)
     
@@ -589,7 +586,6 @@ def factura_pdf(id_factura):
                 descripcion += f" - {item['velocidad']}"
             if item.get('descripcion'):
                 descripcion += f" ({item['descripcion']})"
-            
             detalle_preparado.append({
                 'descripcion_completa': descripcion,
                 'cantidad': item['cantidad'],
@@ -617,12 +613,10 @@ def factura_pdf(id_factura):
     logo_path = os.path.join(app.root_path, 'static', 'img', 'LOGO.png').replace('\\', '/')
     html = render_template('factura_pdf.html', factura=factura, detalle=detalle_preparado, logo_path=logo_path)
 
-    # Generar PDF base con xhtml2pdf
     pdf_buffer = BytesIO()
     pisa.CreatePDF(html, dest=pdf_buffer)
     pdf_buffer.seek(0)
     
-    # Si está anulada, agregar sello con ReportLab (SOLO TEXTO, sin rectángulo)
     if factura['estado'] == 'Anulada':
         try:
             from reportlab.lib.pagesizes import A4
@@ -632,37 +626,28 @@ def factura_pdf(id_factura):
             
             reader = PdfReader(pdf_buffer)
             writer = PdfWriter()
-            
             sello_buffer = BytesIO()
             c = canvas.Canvas(sello_buffer, pagesize=A4)
-            
             page_width, page_height = A4
-            
             c.saveState()
             c.translate(page_width / 2, page_height / 2)
             c.rotate(-35)
-            
             c.setFillColor(red)
             c.setFont("Helvetica-Bold", 90)
             c.setFillAlpha(0.4)
             c.drawCentredString(0, 0, "ANULADA")
-            
             c.restoreState()
             c.save()
-            
             sello_buffer.seek(0)
             sello_reader = PdfReader(sello_buffer)
             sello_page = sello_reader.pages[0]
-            
             for page in reader.pages:
                 page.merge_page(sello_page)
                 writer.add_page(page)
-            
             pdf_final = BytesIO()
             writer.write(pdf_final)
             pdf_final.seek(0)
             pdf_buffer = pdf_final
-            
         except Exception as e:
             print(f"Error al agregar sello: {e}")
             pdf_buffer.seek(0)
@@ -712,14 +697,7 @@ def reportes_facturacion():
     top_clientes = cursor.fetchall()
     cursor.close()
     conn.close()
-    return render_template(
-        'reportes_facturacion.html', 
-        stats=stats, 
-        top_clientes=top_clientes,
-        fecha_inicio=fecha_inicio,
-        fecha_fin=fecha_fin,
-        nombre_completo=current_user.nombre_completo
-    )
+    return render_template('reportes_facturacion.html', stats=stats, top_clientes=top_clientes, fecha_inicio=fecha_inicio, fecha_fin=fecha_fin, nombre_completo=current_user.nombre_completo)
 
 
 # ===================== PROVEEDORES =====================
@@ -733,13 +711,12 @@ def proveedores_route():
     proveedores_db = cursor.fetchall()
     cursor.close()
     conn.close()
-    return render_template('proveedores.html', 
-                           proveedores=proveedores_db,
-                           nombre_completo=current_user.nombre_completo)
+    return render_template('proveedores.html', proveedores=proveedores_db, nombre_completo=current_user.nombre_completo)
 
 
 @app.route('/proveedores/nuevo', methods=['GET', 'POST'])
 @login_required
+@requiere_permiso('proveedores', 'crear')
 def nuevo_proveedor():
     form = ProveedorForm()
     if form.validate_on_submit():
@@ -754,13 +731,12 @@ def nuevo_proveedor():
         conn.close()
         flash('Proveedor registrado exitosamente.', 'success')
         return redirect(url_for('proveedores_route'))
-    return render_template('formulario_proveedor.html', 
-                           form=form,
-                           nombre_completo=current_user.nombre_completo)
+    return render_template('formulario_proveedor.html', form=form, nombre_completo=current_user.nombre_completo)
 
 
 @app.route('/proveedores/editar/<int:id_proveedor>', methods=['GET', 'POST'])
 @login_required
+@requiere_permiso('proveedores', 'editar')
 def editar_proveedor(id_proveedor):
     conn = get_connection()
     cursor = conn.cursor()
@@ -782,14 +758,12 @@ def editar_proveedor(id_proveedor):
             form.nombre.data, form.producto.data, form.contacto.data = proveedor
     cursor.close()
     conn.close()
-    return render_template('formulario_proveedor.html', 
-                           form=form, 
-                           editar=True,
-                           nombre_completo=current_user.nombre_completo)
+    return render_template('formulario_proveedor.html', form=form, editar=True, nombre_completo=current_user.nombre_completo)
 
 
 @app.route('/proveedores/eliminar/<int:id_proveedor>')
 @login_required
+@requiere_permiso('proveedores', 'eliminar')
 def eliminar_proveedor(id_proveedor):
     conn = get_connection()
     cursor = conn.cursor()
@@ -809,11 +783,7 @@ def procesar_contacto():
     email = request.form.get('email')
     asunto = request.form.get('asunto')
     mensaje = request.form.get('mensaje')
-    return render_template('confirmacion.html', 
-                           nombre=nombre, 
-                           email=email, 
-                           asunto=asunto, 
-                           mensaje=mensaje)
+    return render_template('confirmacion.html', nombre=nombre, email=email, asunto=asunto, mensaje=mensaje)
 
 
 # ===================== REGISTRO DE USUARIOS =====================
@@ -846,14 +816,24 @@ def login():
     if form.validate_on_submit():
         conn = get_connection()
         cursor = conn.cursor()
-        cursor.execute('SELECT id, usuario, password, nombre_completo FROM usuarios WHERE usuario = %s', (form.usuario.data,))
+        cursor.execute('''
+            SELECT id, usuario, password, nombre_completo, es_admin, rol, activo
+            FROM usuarios WHERE usuario = %s
+        ''', (form.usuario.data,))
         data = cursor.fetchone()
         cursor.close()
         conn.close()
+        
         if data and check_password_hash(data[2], form.password.data):
-            user = Usuario(data[0], data[1], data[2], data[3])
-            login_user(user)
-            return redirect(url_for('dashboard'))
+            if not data[6]:
+                error = "Esta cuenta ha sido desactivada del sistema."
+            else:
+                user = Usuario(
+                    id=data[0], usuario=data[1], password=data[2], nombre_completo=data[3],
+                    es_admin=data[4], rol=data[5], activo=data[6]
+                )
+                login_user(user)
+                return redirect(url_for('dashboard'))
         else:
             error = "Usuario o contraseña incorrectos"
     return render_template('login.html', form=form, error=error)
@@ -864,9 +844,98 @@ def login():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    return render_template('dashboard.html', 
-                           usuario=current_user.usuario, 
+    return render_template('dashboard.html', usuario=current_user.usuario, nombre_completo=current_user.nombre_completo)
+
+
+# ===================== PANEL DE PERMISOS MASIVO (ROLES) =====================
+
+@app.route('/admin/permisos', methods=['GET', 'POST'])
+@login_required
+def gestionar_permisos():
+    if not getattr(current_user, 'es_admin', False):
+        flash("Acceso denegado. Solo el administrador puede ver esta página.", "danger")
+        return redirect(url_for('dashboard'))
+
+    conn = get_connection()
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
+
+    if request.method == 'POST':
+        usuario_id = request.form.get('usuario_id')
+        rol = request.form.get('rol', 'Ventas')
+
+        cursor.execute('''
+            UPDATE usuarios SET rol = %s WHERE id = %s AND es_admin = FALSE
+        ''', (rol, usuario_id))
+        conn.commit()
+        
+        flash("Rol actualizado correctamente.", "success")
+        return redirect(url_for('gestionar_permisos'))
+
+    # CONSULTAR USUARIOS ACTIVOS
+    cursor.execute('''
+        SELECT id, usuario, nombre_completo, es_admin, rol 
+        FROM usuarios 
+        WHERE activo = TRUE 
+        ORDER BY es_admin DESC, nombre_completo
+    ''')
+    usuarios_activos = cursor.fetchall()
+
+    # CONSULTAR USUARIOS INACTIVOS (NUEVO)
+    cursor.execute('''
+        SELECT id, usuario, nombre_completo, rol 
+        FROM usuarios 
+        WHERE activo = FALSE 
+        ORDER BY nombre_completo
+    ''')
+    usuarios_inactivos = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return render_template('admin_permisos.html', 
+                           usuarios=usuarios_activos, 
+                           usuarios_inactivos=usuarios_inactivos, 
                            nombre_completo=current_user.nombre_completo)
+
+
+@app.route('/admin/desactivar_usuario/<int:id_usuario>')
+@login_required
+def desactivar_usuario(id_usuario):
+    if not getattr(current_user, 'es_admin', False):
+        flash("Acceso denegado.", "danger")
+        return redirect(url_for('dashboard'))
+    
+    if id_usuario == current_user.id:
+        flash("No puedes desactivar tu propia cuenta.", "danger")
+        return redirect(url_for('gestionar_permisos'))
+
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute('UPDATE usuarios SET activo = FALSE WHERE id = %s AND es_admin = FALSE', (id_usuario,))
+    conn.commit()
+    cursor.close()
+    conn.close()
+    
+    flash('Usuario desactivado correctamente. Se ha movido a la sección de inactivos.', 'info')
+    return redirect(url_for('gestionar_permisos'))
+
+
+@app.route('/admin/reactivar_usuario/<int:id_usuario>')
+@login_required
+def reactivar_usuario(id_usuario):
+    if not getattr(current_user, 'es_admin', False):
+        flash("Acceso denegado.", "danger")
+        return redirect(url_for('dashboard'))
+
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute('UPDATE usuarios SET activo = TRUE WHERE id = %s', (id_usuario,))
+    conn.commit()
+    cursor.close()
+    conn.close()
+    
+    flash('Usuario reactivado con éxito. Ya puede iniciar sesión nuevamente.', 'success')
+    return redirect(url_for('gestionar_permisos'))
 
 
 # ===================== LOGOUT =====================

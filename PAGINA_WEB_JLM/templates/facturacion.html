@@ -49,17 +49,6 @@
         transform: translateY(-2px);
         box-shadow: 0 4px 8px rgba(220, 53, 69, 0.4);
     }
-    .btn-editar:disabled,
-    .btn-editar[disabled] {
-        background-color: #6c757d;
-        cursor: not-allowed;
-        opacity: 0.6;
-    }
-    .btn-editar:disabled:hover,
-    .btn-editar[disabled]:hover {
-        transform: none;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
 </style>
 
 <section class="mb-5 p-4 section-custom">
@@ -107,21 +96,6 @@
         </form>
     </div>
 
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <p class="mb-0 text-muted">
-            <i class="bi bi-list-ul"></i> 
-            <strong>{{ facturas|length }}</strong> factura(s) encontrada(s)
-            {% if busqueda or estado or plan %}
-                <span class="badge bg-info ms-2">Filtros activos</span>
-            {% endif %}
-        </p>
-        {% if busqueda or estado or plan %}
-        <a href="{{ url_for('facturacion') }}" class="btn btn-sm btn-outline-danger">
-            <i class="bi bi-trash"></i> Quitar todos los filtros
-        </a>
-        {% endif %}
-    </div>
-
     <div class="table-responsive">
         <table class="table table-hover align-middle">
             <thead class="table-light">
@@ -145,17 +119,7 @@
                     <td><small class="text-muted">{{ factura.cliente_plan }}</small></td>
                     <td>{{ factura.registrado_por }}</td>
                     <td class="fw-bold text-success">{{ factura.monto }}</td>
-                    <td>
-                        {% if factura.forma_pago == 'Efectivo' %}
-                            <span class="fw-bold"><i class="bi bi-cash-coin text-success"></i> Efectivo</span>
-                        {% elif factura.forma_pago == 'Transferencia' %}
-                            <span class="fw-bold"><i class="bi bi-bank text-primary"></i> Transferencia</span>
-                        {% elif factura.forma_pago == 'Deposito' %}
-                            <span class="fw-bold"><i class="bi bi-wallet2 text-warning"></i> Depósito</span>
-                        {% else %}
-                            <span class="text-muted">-</span>
-                        {% endif %}
-                    </td>
+                    <td>{{ factura.forma_pago or 'Efectivo' }}</td>
                     <td>
                         {% if factura.estado == 'Pagada' %}
                             <span class="badge" style="background-color: #32CD32 !important; color: #000;"><i class="bi bi-check-circle-fill"></i> PAGADA</span>
@@ -168,7 +132,7 @@
                     <td>
                         {% if factura.comprobante_pago %}
                             <a href="{{ url_for('static', filename=factura.comprobante_pago) }}" 
-                               target="_blank" class="btn btn-sm btn-comprobante" title="Ver comprobante PDF">
+                               target="_blank" class="btn btn-sm btn-comprobante" title="Ver comprobante">
                                 <i class="bi bi-file-earmark-pdf-fill"></i>
                             </a>
                         {% else %}
@@ -176,47 +140,43 @@
                         {% endif %}
                     </td>
                     <td>
-                        {% if factura.estado != 'Anulada' and factura.editable %}
-                        <a href="{{ url_for('editar_factura', id_factura=factura.id_factura) }}" 
-                           class="btn btn-sm btn-accion btn-editar" title="Editar factura">
-                            <i class="bi bi-pencil-fill"></i>
-                        </a>
-                        {% elif factura.estado != 'Anulada' and not factura.editable %}
-                        <button class="btn btn-sm btn-accion btn-editar" disabled title="Solo editable dentro de las 24 horas">
-                            <i class="bi bi-pencil-fill"></i>
-                        </button>
+                        <!-- EDITAR FACTURA: Oculto si no tiene permiso o si ya pasaron las 24h / está anulada -->
+                        {% if current_user.es_admin or current_user.facturas_editar %}
+                            {% if factura.estado != 'Anulada' and factura.editable %}
+                            <a href="{{ url_for('editar_factura', id_factura=factura.id_factura) }}" 
+                               class="btn btn-sm btn-accion btn-editar" title="Editar factura">
+                                <i class="bi bi-pencil-fill"></i>
+                            </a>
+                            {% endif %}
                         {% endif %}
 
+                        <!-- DESCARGAR PDF: Disponible para todos los usuarios autenticados -->
                         {% if factura.estado in ['Pagada', 'Anulada'] %}
                         <a href="{{ url_for('factura_pdf', id_factura=factura.id_factura) }}" 
-                           target="_blank" class="btn btn-sm btn-accion btn-pdf" title="Descargar factura PDF">
+                           target="_blank" class="btn btn-sm btn-accion btn-pdf" title="Descargar PDF">
                             <i class="bi bi-file-earmark-pdf-fill"></i>
                         </a>
                         {% endif %}
 
-                        {% if factura.estado != 'Anulada' %}
-                        <button type="button"
-                                class="btn btn-sm btn-accion btn-anular"
-                                data-bs-toggle="modal"
-                                data-bs-target="#modalAnular"
-                                onclick="prepararAnulacion('{{ url_for('anular_factura', id_factura=factura.id_factura) }}', '{{ factura.numero }}')"
-                                title="Anular factura">
-                            <i class="bi bi-file-earmark-x-fill"></i>
-                        </button>
+                        <!-- ANULAR FACTURA: Oculto si no tiene permiso -->
+                        {% if current_user.es_admin or current_user.facturas_anular %}
+                            {% if factura.estado != 'Anulada' %}
+                            <button type="button"
+                                    class="btn btn-sm btn-accion btn-anular"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modalAnular"
+                                    onclick="prepararAnulacion('{{ url_for('anular_factura', id_factura=factura.id_factura) }}', '{{ factura.numero }}')"
+                                    title="Anular factura">
+                                <i class="bi bi-file-earmark-x-fill"></i>
+                            </button>
+                            {% endif %}
                         {% endif %}
                     </td>
                 </tr>
                 {% else %}
                 <tr>
                     <td colspan="9" class="text-center text-muted py-4">
-                        <i class="bi bi-inbox fs-3"></i><br>
-                        No se encontraron facturas con esos criterios.
-                        {% if busqueda or estado or plan %}
-                        <br>
-                        <a href="{{ url_for('facturacion') }}" class="btn btn-sm btn-outline-primary mt-2">
-                            <i class="bi bi-arrow-clockwise"></i> Limpiar filtros y ver todas
-                        </a>
-                        {% endif %}
+                        No se encontraron facturas.
                     </td>
                 </tr>
                 {% endfor %}
@@ -225,75 +185,53 @@
     </div>
 </section>
 
+<!-- MODAL ANULAR -->
+{% if current_user.es_admin or current_user.facturas_anular %}
 <div class="modal fade" id="modalAnular" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header bg-warning">
-        <h5 class="modal-title fw-bold">
-            <i class="bi bi-shield-exclamation"></i> Anulación de Factura
-        </h5>
+        <h5 class="modal-title fw-bold">Anulación de Factura</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
       <div class="modal-body">
-        <div class="alert alert-warning border-start border-4 border-dark">
-            <p class="mb-2 fw-bold"><i class="bi bi-bank"></i> Marco Legal Ecuatoriano:</p>
-            <p class="mb-2 small">De acuerdo al <strong>Art. 68 del Reglamento para la Aplicación de la Ley de Régimen Tributario Interno</strong> y resoluciones del <strong>SRI</strong>:</p>
-            <p class="mb-0 small">Los comprobantes de venta <strong>no pueden eliminarse</strong>. Únicamente procede su <strong>anulación</strong> mediante nota de crédito por error en la emisión o devolución.</p>
-        </div>
-
         <form id="formAnulacion" method="POST">
             <div class="mb-3">
-                <label class="form-label fw-bold">
-                    <i class="bi bi-asterisk text-danger"></i> Motivo de la anulación (Obligatorio)
-                </label>
+                <label class="form-label fw-bold">Motivo de la anulación</label>
                 <select name="motivo" id="motivoAnulacion" class="form-select" required>
-                    <option value="">-- Seleccione un motivo --</option>
-                    <option value="error_emision">Error en la emisión del comprobante</option>
-                    <option value="devolucion">Devolución de bienes o servicios</option>
-                    <option value="cancelacion_venta">Cancelación de la venta antes de la entrega</option>
+                    <option value="">-- Seleccione --</option>
+                    <option value="error_emision">Error en la emisión</option>
+                    <option value="devolucion">Devolución</option>
                     <option value="otro">Otro</option>
                 </select>
             </div>
             <div class="mb-3">
-                <label class="form-label fw-bold">Observaciones adicionales (Opcional)</label>
-                <select name="observaciones" id="observacionesAnulacion" class="form-select">
-                    <option value="">-- Sin observaciones --</option>
-                    <option value="datos_cliente_incorrectos">Datos del cliente incorrectos</option>
-                    <option value="monto_erroneo">Monto incorrecto</option>
-                    <option value="producto_no_entregado">Producto/Servicio no entregado</option>
-                    <option value="cliente_solicito">Solicitud del cliente</option>
-                    <option value="duplicado">Factura duplicada</option>
-                </select>
+                <label class="form-label fw-bold">Observaciones</label>
+                <input type="text" name="observaciones" class="form-control" placeholder="Detalles...">
             </div>
-            <p class="mb-0 fw-bold fs-5 text-center">
-                ¿Desea anular la factura <span class="text-danger" id="numeroFacturaModal"></span>?
-            </p>
+            <p class="mb-0 fw-bold text-center">¿Desea anular la factura <span class="text-danger" id="numeroFacturaModal"></span>?</p>
         </form>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-            <i class="bi bi-x-circle"></i> Cancelar
-        </button>
-        <button type="button" id="btnConfirmarAnular" class="btn btn-warning fw-bold" onclick="enviarAnulacion()">
-            <i class="bi bi-check-circle"></i> Sí, anular factura
-        </button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" id="btnConfirmarAnular" class="btn btn-warning fw-bold" onclick="enviarAnulacion()">Confirmar</button>
       </div>
     </div>
   </div>
 </div>
+{% endif %}
 
 <script>
 function prepararAnulacion(url, numero) {
     document.getElementById('formAnulacion').setAttribute('action', url);
     document.getElementById('numeroFacturaModal').textContent = numero;
     document.getElementById('motivoAnulacion').value = '';
-    document.getElementById('observacionesAnulacion').value = '';
 }
 
 function enviarAnulacion() {
     const motivo = document.getElementById('motivoAnulacion').value;
     if (!motivo) {
-        alert('️ Debe seleccionar un motivo de anulación.');
+        alert('Debe seleccionar un motivo de anulación.');
         return;
     }
     document.getElementById('formAnulacion').submit();

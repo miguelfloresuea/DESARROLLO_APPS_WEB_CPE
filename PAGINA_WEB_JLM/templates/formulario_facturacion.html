@@ -25,7 +25,7 @@
         <!-- Cliente -->
         <div class="mb-3">
             {{ form.id_cliente.label(class="form-label fw-bold") }}
-            {{ form.id_cliente(class="form-select") }}
+            {{ form.id_cliente(class="form-select", id="selectCliente") }}
             {% for error in form.id_cliente.errors %}
             <div class="text-danger small">{{ error }}</div>
             {% endfor %}
@@ -35,6 +35,7 @@
         <div class="mb-3">
             {{ form.id_producto.label(class="form-label fw-bold") }}
             {{ form.id_producto(class="form-select", id="id_producto_select") }}
+            <div class="form-text text-muted">Se muestran únicamente los planes activos contratados por este cliente.</div>
             {% for error in form.id_producto.errors %}
             <div class="text-danger small">{{ error }}</div>
             {% endfor %}
@@ -90,23 +91,71 @@
 </section>
 
 <script>
-    // Script para llenar automáticamente el monto al seleccionar un plan
-    const selectProducto = document.getElementById('id_producto_select');
-    const montoDisplay = document.getElementById('monto_display');
+    document.addEventListener('DOMContentLoaded', function() {
+        const selectCliente = document.getElementById('selectCliente');
+        const selectProducto = document.getElementById('id_producto_select');
+        const montoDisplay = document.getElementById('monto_display');
 
-    selectProducto.addEventListener('change', function() {
-        const selectedText = this.options[this.selectedIndex].text;
-        const match = selectedText.match(/\$[\d\.]+/);
-        if (match) {
-            montoDisplay.value = match[0];
-        } else {
-            montoDisplay.value = "";
+        // Función para actualizar el monto automáticamente en base al texto seleccionado
+        function actualizarMonto() {
+            if (selectProducto.selectedIndex !== -1) {
+                const selectedText = selectProducto.options[selectProducto.selectedIndex].text;
+                const match = selectedText.match(/\$[\d\.]+/);
+                if (match) {
+                    montoDisplay.value = match[0];
+                } else {
+                    montoDisplay.value = "";
+                }
+            } else {
+                montoDisplay.value = "";
+            }
+        }
+
+        // Función AJAX para cargar los planes activos del cliente seleccionado
+        function cargarPlanesCliente(idCliente) {
+            if (!idCliente) {
+                selectProducto.innerHTML = '<option value="">-- Seleccione un cliente primero --</option>';
+                montoDisplay.value = "";
+                return;
+            }
+
+            fetch(`/api/cliente/${idCliente}/planes`)
+                .then(response => response.json())
+                .then(data => {
+                    selectProducto.innerHTML = '';
+                    if (data.planes && data.planes.length > 0) {
+                        data.planes.forEach(plan => {
+                            let option = document.createElement('option');
+                            option.value = plan.id_producto;
+                            option.textContent = `${plan.nombre} - $${plan.precio}`;
+                            selectProducto.appendChild(option);
+                        });
+                    } else {
+                        let option = document.createElement('option');
+                        option.value = "";
+                        option.textContent = "Este cliente no tiene planes activos asociados";
+                        selectProducto.appendChild(option);
+                    }
+                    actualizarMonto();
+                })
+                .catch(error => {
+                    console.error('Error al cargar los planes:', error);
+                });
+        }
+
+        // Evento al cambiar de cliente en el menú desplegable
+        selectCliente.addEventListener('change', function() {
+            cargarPlanesCliente(this.value);
+        });
+
+        // Evento al cambiar de plan para actualizar el monto
+        selectProducto.addEventListener('change', actualizarMonto);
+
+        // Si ya hay un cliente seleccionado al cargar la página (por ejemplo, en recargas con errores)
+        if (selectCliente.value) {
+            cargarPlanesCliente(selectCliente.value);
         }
     });
-
-    if (selectProducto.value) {
-        selectProducto.dispatchEvent(new Event('change'));
-    }
 
     // Script para mostrar/ocultar el campo de comprobante según forma de pago
     const formaPagoSelect = document.getElementById('forma_pago_select');
@@ -125,7 +174,9 @@
         }
     }
 
-    formaPagoSelect.addEventListener('change', toggleComprobante);
-    toggleComprobante();
+    if (formaPagoSelect) {
+        formaPagoSelect.addEventListener('change', toggleComprobante);
+        toggleComprobante();
+    }
 </script>
 {% endblock %}

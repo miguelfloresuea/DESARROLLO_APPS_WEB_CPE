@@ -4,14 +4,11 @@
 
 <!-- ESTILOS PERSONALIZADOS PARA EFECTO HOVER EN BOTONES -->
 <style>
-    /* Botones de acción con efecto hover */
     .btn-accion {
         transition: all 0.3s ease;
         border: none;
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
-    
-    /* Botón Editar - Azul */
     .btn-editar {
         background-color: #0d6efd;
         color: white;
@@ -22,8 +19,6 @@
         box-shadow: 0 4px 8px rgba(13, 110, 253, 0.4);
         color: white;
     }
-    
-    /* Botón Eliminar - Rojo */
     .btn-eliminar {
         background-color: #dc3545;
         color: white;
@@ -39,11 +34,13 @@
 <section class="mb-5 p-4 section-custom">
     <h2 class="text-center mb-4">Clientes</h2>
     
+    {% if current_user.es_admin or current_user.clientes_crear %}
     <p class="text-center">
         <a href="{{ url_for('nuevo_cliente') }}" class="btn btn-outline-primary">
             <i class="bi bi-person-plus-fill"></i> + Registrar nuevo cliente
         </a>
     </p>
+    {% endif %}
 
     <div class="table-responsive">
         <table class="table table-hover align-middle">
@@ -80,34 +77,16 @@
                         {% endif %}
                     </td>
                     
-                    <!-- PLAN: Mostrar desde la columna plan -->
                     <td>
                         <span class="fw-bold">
                             {% if cliente.plan %}
-                                {% if cliente.plan == 'Residencial' %}
-                                    <i class="bi bi-house-fill text-success"></i> Residencial
-                                {% elif cliente.plan == 'Empresarial' %}
-                                    <i class="bi bi-building text-primary"></i> Empresarial
-                                {% elif cliente.plan == 'Educativo' %}
-                                    <i class="bi bi-mortarboard-fill text-info"></i> Educativo
-                                {% elif cliente.plan == 'Rural' %}
-                                    <i class="bi bi-tree-fill text-success"></i> Rural
-                                {% elif cliente.plan == 'Premium Fibra' %}
-                                    <i class="bi bi-lightning-charge-fill text-warning"></i> Premium Fibra
-                                {% elif cliente.plan == 'PYME' %}
-                                    <i class="bi bi-briefcase-fill text-secondary"></i> PYME
-                                {% elif cliente.plan == 'Comercial' %}
-                                    <i class="bi bi-shop text-primary"></i> Comercial
-                                {% else %}
-                                    {{ cliente.plan }}
-                                {% endif %}
+                                {{ cliente.plan }}
                             {% else %}
                                 <span class="text-muted">Sin plan</span>
                             {% endif %}
                         </span>
                     </td>
                     
-                    <!-- ESTADO -->
                     <td>
                         {% if cliente.estado == 'Activo' %}
                             <span class="badge" style="background-color: #32CD32 !important; color: #000;">
@@ -126,21 +105,22 @@
                         {% endif %}
                     </td>
                     
-                    <!-- ACCIONES -->
                     <td>
-                        <!-- BOTÓN EDITAR (lápiz azul) -->
+                        {% if current_user.es_admin or current_user.clientes_editar %}
                         <a href="{{ url_for('editar_cliente', id_cliente=cliente.id_cliente) }}" 
                            class="btn btn-sm btn-accion btn-editar" title="Editar cliente">
                             <i class="bi bi-pencil-fill"></i>
                         </a>
+                        {% endif %}
                         
-                        <!-- BOTÓN ELIMINAR (bote de basura rojo) -->
+                        {% if current_user.es_admin or current_user.clientes_eliminar %}
                         <a href="{{ url_for('eliminar_cliente', id_cliente=cliente.id_cliente) }}" 
                            class="btn btn-sm btn-accion btn-eliminar"
                            onclick="return confirm('¿Estás seguro de eliminar a {{ cliente.nombre }}?')"
                            title="Eliminar cliente">
                             <i class="bi bi-trash-fill"></i>
                         </a>
+                        {% endif %}
                     </td>
                 </tr>
                 {% else %}

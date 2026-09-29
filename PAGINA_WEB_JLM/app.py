@@ -127,10 +127,13 @@ def editar_producto(id_producto):
         cursor.execute('SELECT nombre, velocidad, precio, descripcion FROM productos WHERE id_producto = %s', (id_producto,))
         producto = cursor.fetchone()
         if producto:
-            form.nombre.data, form.velocidad.data, form.precio.data, form.descripcion.data = producto
+            form.nombre.data = producto[0]
+            form.velocidad.data = producto[1]
+            form.precio.data = producto[2]
+            form.descripcion.data = producto[3]
     cursor.close()
     conn.close()
-    return render_template('formulario_producto.html', form=form, nombre_completo=current_user.nombre_completo)
+    return render_template('formulario_producto.html', form=form, editar=True, nombre_completo=current_user.nombre_completo)
 
 
 @app.route('/productos/eliminar/<int:id_producto>')
@@ -154,11 +157,16 @@ def eliminar_producto(id_producto):
 def clientes_route():
     conn = get_connection()
     cursor = conn.cursor(cursor_factory=RealDictCursor)
+    # Ordenados por id_cliente DESC para que los recién creados aparezcan primeros
     cursor.execute('''
         SELECT c.id_cliente, c.nombre, c.ruc_cedula, c.celular, c.correo, 
-               c.canton, c.ciudad, c.sector, c.plan, c.estado
+               c.canton, c.ciudad, c.sector, c.estado,
+               COALESCE(p.nombre, 'Sin plan') AS plan
         FROM clientes c
-        ORDER BY c.nombre
+        LEFT JOIN suscripciones s ON c.id_cliente = s.id_cliente AND s.estado = 'Activo'
+        LEFT JOIN productos p ON s.id_producto = p.id_producto
+        WHERE c.estado != 'Inactivo'
+        ORDER BY c.id_cliente DESC
     ''')
     clientes_db = cursor.fetchall()
     cursor.close()
@@ -225,8 +233,23 @@ def editar_cliente(id_cliente):
              form.correo.data, form.canton.data, form.ciudad.data,
              form.sector.data, form.estado.data, id_cliente)
         )
+        
+        cursor2.execute("SELECT id_suscripcion FROM suscripciones WHERE id_cliente = %s AND estado = 'Activo'", (id_cliente,))
+        suscripcion_activa = cursor2.fetchone()
+        if suscripcion_activa:
+            cursor2.execute(
+                'UPDATE suscripciones SET id_producto = %s WHERE id_suscripcion = %s',
+                (form.id_producto.data, suscripcion_activa['id_suscripcion'] if isinstance(suscripcion_activa, dict) else suscripcion_activa[0])
+            )
+        else:
+            cursor2.execute(
+                "INSERT INTO suscripciones (id_cliente, id_producto, estado) VALUES (%s, %s, 'Activo')",
+                (id_cliente, form.id_producto.data)
+            )
+
         conn.commit()
         cursor2.close()
+        cursor.close()
         conn.close()
         flash('Cliente actualizado correctamente.', 'success')
         return redirect(url_for('clientes_route'))
@@ -245,6 +268,11 @@ def editar_cliente(id_cliente):
             form.ciudad.data = cliente['ciudad']
             form.sector.data = cliente['sector']
             form.estado.data = cliente['estado']
+            
+        cursor.execute('''SELECT id_producto FROM suscripciones WHERE id_cliente = %s AND estado = 'Activo' LIMIT 1''', (id_cliente,))
+        suscripcion = cursor.fetchone()
+        if suscripcion:
+            form.id_producto.data = suscripcion['id_producto'] if isinstance(suscripcion, dict) else suscripcion[0]
 
     cursor.close()
     conn.close()
@@ -305,11 +333,11 @@ def agregar_plan_cliente(id_cliente):
 def eliminar_cliente(id_cliente):
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute('DELETE FROM clientes WHERE id_cliente = %s', (id_cliente,))
+    cursor.execute("UPDATE clientes SET estado = 'Inactivo' WHERE id_cliente = %s", (id_cliente,))
     conn.commit()
     cursor.close()
     conn.close()
-    flash('Cliente eliminado.', 'info')
+    flash('Cliente dado de baja correctamente.', 'info')
     return redirect(url_for('clientes_route'))
 
 
@@ -381,8 +409,7 @@ def nueva_factura():
     cursor = conn.cursor(cursor_factory=RealDictCursor)
     cursor.execute('SELECT id_cliente, nombre FROM clientes ORDER BY nombre')
     clientes_db = cursor.fetchall()
-    cursor.execute('SELECT id_producto, nombre, precio FROM productos ORDER BY nombre')
-    productos_db = cursor.fetchall()
+    
     cursor.execute("SELECT numero FROM facturas ORDER BY id_factura DESC LIMIT 1")
     ultima_factura = cursor.fetchone()
     if ultima_factura and ultima_factura['numero']:
@@ -401,16 +428,27 @@ def nueva_factura():
     
     form = FacturacionForm()
     form.id_cliente.choices = [(c['id_cliente'], f"[{c['id_cliente']}] {c['nombre']}") for c in clientes_db]
-    form.id_producto.choices = [(p['id_producto'], f"{p['nombre']} - {p['precio']}") for p in productos_db]
+    
+    conn_prod = get_connection()
+    cursor_prod = conn_prod.cursor(cursor_factory=RealDictCursor)
+    cursor_prod.execute('SELECT id_producto, nombre, precio FROM productos')
+    todos_productos = cursor_prod.fetchall()
+    cursor_prod.close()
+    conn_prod.close()
+    
+    form.id_producto.choices = [(p['id_producto'], f"{p['nombre']} - {p['precio']}") for p in todos_productos]
     
     if form.validate_on_submit():
-        cursor = conn.cursor()
+        conn = get_connection()
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
         cursor.execute('SELECT precio FROM productos WHERE id_producto = %s', (form.id_producto.data,))
         producto_sel = cursor.fetchone()
-        precio_str = producto_sel[0] if producto_sel else '0.00'
-        precio_con_iva = float(precio_str.replace('$', '').strip())
-        comprobante_path = None
         
+        precio_raw = producto_sel['precio'] if producto_sel else '$0.00'
+        precio_str = str(precio_raw).replace('$', '').strip()
+        precio_con_iva = float(precio_str) if precio_str else 0.0
+        
+        comprobante_path = None
         if form.comprobante_pago.data and form.comprobante_pago.data.filename:
             carpeta_comprobantes = os.path.join(app.root_path, 'static', 'comprobantes')
             os.makedirs(carpeta_comprobantes, exist_ok=True)
@@ -422,9 +460,9 @@ def nueva_factura():
         cursor.execute(
             '''INSERT INTO facturas (numero, id_cliente, monto, estado, id_usuario, forma_pago, comprobante_pago, fecha_creacion)
                VALUES (%s, %s, %s, %s, %s, %s, %s, NOW()) RETURNING id_factura''',
-            (numero_factura, form.id_cliente.data, precio_str, form.estado.data, current_user.id, form.forma_pago.data, comprobante_path)
+            (numero_factura, form.id_cliente.data, f"${precio_con_iva:.2f}", form.estado.data, current_user.id, form.forma_pago.data, comprobante_path)
         )
-        id_factura_nueva = cursor.fetchone()[0]
+        id_factura_nueva = cursor.fetchone()['id_factura']
         subtotal_sin_iva = round(precio_con_iva / 1.15, 2)
         
         cursor.execute(
@@ -440,6 +478,24 @@ def nueva_factura():
         
     conn.close()
     return render_template('formulario_facturacion.html', form=form, numero_factura=numero_factura, nombre_completo=current_user.nombre_completo)
+
+
+# RUTA API PARA OBTENER LOS PLANES ACTIVOS DEL CLIENTE SELECCIONADO
+@app.route('/api/cliente/<int:id_cliente>/planes')
+@login_required
+def api_planes_cliente(id_cliente):
+    conn = get_connection()
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
+    cursor.execute('''
+        SELECT p.id_producto, p.nombre, p.precio 
+        FROM suscripciones s
+        JOIN productos p ON s.id_producto = p.id_producto
+        WHERE s.id_cliente = %s AND s.estado = 'Activo'
+    ''', (id_cliente,))
+    planes = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return {'planes': planes}
 
 
 @app.route('/facturacion/editar/<int:id_factura>', methods=['GET', 'POST'])
@@ -485,7 +541,7 @@ def editar_factura(id_factura):
     form.id_producto.choices = [(p['id_producto'], f"{p['nombre']} - {p['precio']}") for p in productos_db]
     
     if form.validate_on_submit():
-        cursor2 = conn.cursor()
+        cursor2 = conn.cursor(cursor_factory=RealDictCursor)
         comprobante_path = None
         if form.comprobante_pago.data and form.comprobante_pago.data.filename:
             carpeta_comprobantes = os.path.join(app.root_path, 'static', 'comprobantes')
@@ -567,8 +623,7 @@ def factura_pdf(id_factura):
     ''', (id_factura,))
     detalle = cursor.fetchall()
     
-    fecha_utc = factura['fecha_creacion'] if factura['fecha_creacion'] else datetime.now()
-    fecha = fecha_utc - timedelta(hours=5)
+    fecha = factura['fecha_creacion'] if factura['fecha_creacion'] else datetime.now()
     periodo = f"{MESES_ESP[fecha.month]} {fecha.year}"
     fecha_emision = fecha.strftime('%d/%m/%Y')
     fecha_autorizacion = fecha.strftime('%d/%m/%Y %H:%M:%S')
@@ -871,7 +926,6 @@ def gestionar_permisos():
         flash("Rol actualizado correctamente.", "success")
         return redirect(url_for('gestionar_permisos'))
 
-    # CONSULTAR USUARIOS ACTIVOS
     cursor.execute('''
         SELECT id, usuario, nombre_completo, es_admin, rol 
         FROM usuarios 
@@ -880,7 +934,6 @@ def gestionar_permisos():
     ''')
     usuarios_activos = cursor.fetchall()
 
-    # CONSULTAR USUARIOS INACTIVOS (NUEVO)
     cursor.execute('''
         SELECT id, usuario, nombre_completo, rol 
         FROM usuarios 

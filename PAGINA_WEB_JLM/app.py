@@ -68,7 +68,16 @@ def load_user(user_id):
 
 @app.route('/')
 def inicio():
-    return render_template('index.html')
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT id_producto, nombre, velocidad, precio, descripcion FROM productos')
+    filas = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    planes_db = [{"id_producto": f[0], "nombre": f[1], "velocidad": f[2], "precio": f[3], "descripcion": f[4]} for f in filas]
+    
+    nombre_completo = current_user.nombre_completo if current_user.is_authenticated else None
+    return render_template('index.html', planes=planes_db, nombre_completo=nombre_completo)
 
 
 # ===================== PRODUCTOS (PLANES) =====================
@@ -157,7 +166,6 @@ def eliminar_producto(id_producto):
 def clientes_route():
     conn = get_connection()
     cursor = conn.cursor(cursor_factory=RealDictCursor)
-    # Ordenados por id_cliente DESC para que los recién creados aparezcan primeros
     cursor.execute('''
         SELECT c.id_cliente, c.nombre, c.ruc_cedula, c.celular, c.correo, 
                c.canton, c.ciudad, c.sector, c.estado,
